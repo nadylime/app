@@ -4,7 +4,7 @@ import { useApp } from './store.jsx';
 export default function Reflections(){
   const { reflections, addReflection } = useApp();
   const [appreciation, setAppreciation] = React.useState("");
-  the_same
+  
   const [challenge, setChallenge] = React.useState("");
 
   const add = ()=>{
