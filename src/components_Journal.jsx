@@ -1,16 +1,13 @@
 import React from 'react';
 import { useApp } from './store.jsx';
+import { simpleSentiment } from './utils.js';
 
 export default function Journal(){
   const { journal, addJournal } = useApp();
   const [text, setText] = React.useState("");
   const [mood, setMood] = React.useState("🙂");
 
-  const add = ()=>{
-    if(!text.trim()) return;
-    addJournal({ text: text.trim(), mood });
-    setText("");
-  };
+  const add = ()=>{ if(!text.trim()) return; addJournal({ text: text.trim(), mood, sentiment: simpleSentiment(text) }); setText(""); };
 
   return (
     <div className="p-4 space-y-4">
@@ -18,12 +15,12 @@ export default function Journal(){
         <h3 className="font-semibold mb-2">Mood Journal</h3>
         <div className="flex items-center gap-2 mb-2">
           <label className="text-sm text-slate-600">Mood:</label>
-          <select className="rounded-lg border p-2" value={mood} onChange={e=>setMood(e.target.value)}>
+          <select className="rounded-lg border p-2" value={mood} onChange={(e)=>setMood(e.target.value)}>
             <option>😄</option><option>🙂</option><option>😐</option><option>😕</option><option>😢</option>
           </select>
         </div>
         <textarea rows={3} className="w-full rounded-xl border p-2 outline-none focus:ring-2 focus:ring-indigo-200"
-          placeholder="Quick note about how you're feeling…" value={text} onChange={e=>setText(e.target.value)} />
+          placeholder="Quick note about how you're feeling…" value={text} onChange={(e)=>setText(e.target.value)} />
         <button className="btn btn-primary mt-3" onClick={add}>Add Entry</button>
       </div>
       <div className="card">
@@ -34,6 +31,9 @@ export default function Journal(){
             <div key={j.id} className="p-3 rounded-xl border border-slate-200">
               <div className="text-lg">{j.mood}</div>
               <div className="mt-1">{j.text}</div>
+              <div className={"text-xs mt-1 " + (j.sentiment<0?"text-red-500":j.sentiment>0?"text-green-600":"text-slate-400")}>
+                Sentiment: {j.sentiment>0 ? "positive" : j.sentiment<0 ? "negative" : "neutral"}
+              </div>
               <div className="text-xs text-slate-400 mt-1">{new Date(j.createdAt).toLocaleString()}</div>
             </div>
           ))}

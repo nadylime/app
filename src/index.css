@@ -5,5 +5,7 @@
 .card{ @apply bg-white rounded-2xl p-4 shadow-soft; }
 .btn{ @apply w-full py-3 rounded-xl font-semibold; }
 .btn-primary{ @apply bg-indigo-600 text-white active:bg-indigo-700; }
+.btn-ghost{ @apply px-3 py-2 rounded-lg text-slate-600 bg-slate-100; }
 .pill{ @apply text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600; }
 .nav-item{ @apply flex flex-col items-center justify-center text-xs; }
+.grid-2{ @apply grid grid-cols-2 gap-3; }

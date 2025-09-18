@@ -13,7 +13,7 @@ export default function Dashboard(){
 
   return (
     <div className="p-4 space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid-2">
         <div className="card">
           <div className="text-slate-500 text-sm">Streak</div>
           <div className="text-3xl font-bold">{streak} <span className="text-base font-medium">days</span></div>
@@ -44,15 +44,6 @@ export default function Dashboard(){
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      <div className="card">
-        <h3 className="font-semibold mb-2">Highlights</h3>
-        <ul className="list-disc ml-5 text-sm text-slate-700 space-y-1">
-          <li>Compare your relationship satisfaction with Partner B day by day.</li>
-          <li>Keep the streak alive for gentle momentum and habit-building.</li>
-          <li>Health score rises when satisfaction and communication increase and stress decreases.</li>
-        </ul>
       </div>
     </div>
   );

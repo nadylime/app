@@ -1,6 +1,6 @@
 {
-  "name": "relationship-demo",
-  "version": "2.0.0",
+  "name": "relationship-super-demo",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,9 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "recharts": "^2.12.7"
+    "recharts": "^2.12.7",
+    "dayjs": "^1.11.10",
+    "jspdf": "^2.5.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",

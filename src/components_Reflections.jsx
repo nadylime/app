@@ -4,7 +4,6 @@ import { useApp } from './store.jsx';
 export default function Reflections(){
   const { reflections, addReflection } = useApp();
   const [appreciation, setAppreciation] = React.useState("");
-  
   const [challenge, setChallenge] = React.useState("");
 
   const add = ()=>{
@@ -19,10 +18,10 @@ export default function Reflections(){
         <h3 className="font-semibold mb-2">Shared Reflections</h3>
         <label className="text-sm">One thing I appreciated about you today</label>
         <textarea rows={2} className="w-full rounded-xl border p-2 mb-3 outline-none focus:ring-2 focus:ring-indigo-200"
-          value={appreciation} onChange={e=>setAppreciation(e.target.value)} />
+          value={appreciation} onChange={(e)=>setAppreciation(e.target.value)} />
         <label className="text-sm">One challenge I had this week</label>
         <textarea rows={2} className="w-full rounded-xl border p-2 outline-none focus:ring-2 focus:ring-indigo-200"
-          value={challenge} onChange={e=>setChallenge(e.target.value)} />
+          value={challenge} onChange={(e)=>setChallenge(e.target.value)} />
         <button className="btn btn-primary mt-3" onClick={add}>Save Reflection</button>
       </div>
       <div className="card">

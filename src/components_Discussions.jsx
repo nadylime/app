@@ -5,11 +5,7 @@ export default function Discussions(){
   const { discussions, addDiscussion, toggleDiscussion } = useApp();
   const [text, setText] = React.useState("");
 
-  const add = ()=>{
-    if(!text.trim()) return;
-    addDiscussion(text.trim());
-    setText("");
-  };
+  const add = ()=>{ if(!text.trim()) return; addDiscussion(text.trim()); setText(""); };
 
   return (
     <div className="p-4 space-y-4">
@@ -17,7 +13,7 @@ export default function Discussions(){
         <h3 className="font-semibold mb-2">Flag Topics to Discuss</h3>
         <div className="flex gap-2">
           <input className="flex-1 rounded-xl border border-slate-200 p-3 outline-none focus:ring-2 focus:ring-indigo-200"
-            placeholder="e.g., Budget check-in this weekend" value={text} onChange={e=>setText(e.target.value)} />
+            placeholder="e.g., Budget check-in this weekend" value={text} onChange={(e)=>setText(e.target.value)} />
           <button className="px-4 rounded-xl bg-slate-900 text-white" onClick={add}>Add</button>
         </div>
       </div>
