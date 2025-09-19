@@ -1,0 +1,1 @@
+import React from 'react';export default function Prompts(){return <div className='section card'><h2>Prompts Page</h2><p>Styled content goes here.</p></div>}

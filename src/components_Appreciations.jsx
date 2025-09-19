@@ -1,0 +1,1 @@
+import React from 'react';export default function Appreciations(){return <div className='section card'><h2>Appreciations Page</h2><p>Styled content goes here.</p></div>}
