@@ -19,14 +19,14 @@ export default function AI(){
   const data = useApp();
   const prompts = generatePrompts(data);
   return (
-    <div className="p-4 space-y-4">
+    <div className="section">
       <div className="card">
         <h3 className="font-semibold mb-2">Conversation Prompts</h3>
-        <ul className="list-disc ml-5 text-sm text-slate-700 space-y-2">
+        <ul className="list-disc ml-5 text-sm space-y-2">
           {prompts.map((p,i)=>(<li key={i}>{p}</li>))}
         </ul>
       </div>
-      <div className="text-xs text-slate-500">Local heuristics only (no internet, no external AI).</div>
+      <div className="text-xs text-white/90">Local heuristics only (no external AI).</div>
     </div>
   );
 }

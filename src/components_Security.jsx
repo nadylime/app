@@ -21,20 +21,20 @@ export default function Security(){
   const clear = ()=>{ setPinHash(''); setUnlocked(true); };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="section">
       <div className="card">
         <h3 className="font-semibold mb-2">App Lock (PIN)</h3>
         {!pinHash && <div className="space-y-2">
-          <input className="w-full rounded-xl border p-2" placeholder="Create PIN" value={pin} onChange={e=>setPin(e.target.value)} />
+          <input className="w-full rounded-2xl glass p-2" placeholder="Create PIN" value={pin} onChange={e=>setPin(e.target.value)} />
           <button className="btn btn-primary" onClick={setNew}>Set PIN</button>
         </div>}
         {pinHash && !unlocked && <div className="space-y-2">
-          <input className="w-full rounded-xl border p-2" placeholder="Enter PIN" value={check} onChange={e=>setCheck(e.target.value)} />
+          <input className="w-full rounded-2xl glass p-2" placeholder="Enter PIN" value={check} onChange={e=>setCheck(e.target.value)} />
           <button className="btn btn-primary" onClick={verify}>Unlock</button>
         </div>}
-        {pinHash && unlocked && <button className="btn-ghost" onClick={clear}>Remove PIN</button>}
+        {pinHash && unlocked && <button className="px-3 py-2 rounded-full bg-white text-brandInk shadow-soft" onClick={clear}>Remove PIN</button>}
       </div>
-      <div className="text-xs text-slate-500">PIN stored as SHA-256 hash in localStorage; this is a basic privacy layer (not enterprise-grade security).</div>
+      <div className="text-xs text-white/90">PIN stored as SHA-256 hash in localStorage (demo privacy layer).</div>
     </div>
   );
 }

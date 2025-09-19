@@ -1,9 +1,12 @@
-@tailwind base;@tailwind components;@tailwind utilities;
-body{@apply bg-gradient-to-b from-brandPeach to-brandPink min-h-screen font-sans text-brandInk/90;background-attachment:fixed;}
-.glass{@apply bg-white/80 backdrop-blur rounded-2xl shadow-soft;}
-.card{@apply glass p-4;}
-.btn{@apply w-full py-3 rounded-full font-semibold;}
-.btn-primary{@apply bg-white text-brandInk hover:bg-white/90 shadow-soft;}
-.pill{@apply text-xs px-2 py-1 rounded-full bg-white/70 text-brandInk;}
-.nav-item{@apply flex flex-col items-center justify-center text-xs;}
-.section{@apply p-4 space-y-4;}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { @apply bg-gradient-to-b from-brandPeach to-brandPink min-h-screen font-sans text-brandInk/90; background-attachment: fixed; }
+.glass { @apply bg-white/80 backdrop-blur rounded-2xl shadow-soft; }
+.card { @apply glass p-4; }
+.btn { @apply w-full py-3 rounded-full font-semibold; }
+.btn-primary { @apply bg-white text-brandInk hover:bg-white/90 shadow-soft; }
+.pill { @apply text-xs px-2 py-1 rounded-full bg-white/70 text-brandInk; }
+.nav-item { @apply flex flex-col items-center justify-center text-xs; }
+.section { @apply p-4 space-y-4; }

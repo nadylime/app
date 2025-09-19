@@ -20,15 +20,15 @@ export default function Partner(){
   };
   const clear = ()=> app.importPaired(null);
   return (
-    <div className="p-4 space-y-4">
+    <div className="section">
       <div className="card">
         <h3 className="font-semibold mb-2">Partner Sync (Demo)</h3>
-        <p className="text-sm text-slate-700">Create a share link that encodes your latest data into the URL hash. Your partner can open the link to import.</p>
-        <div className="grid-2 mt-2">
+        <p className="text-sm text-brandInk/80">Create a share link that encodes your latest data into the URL hash.</p>
+        <div className="grid grid-cols-2 gap-3 mt-2">
           <button className="btn btn-primary" onClick={share}>Copy Share Link</button>
           <button className="btn btn-primary" onClick={importFromHash}>Import From URL</button>
         </div>
-        <button className="btn-ghost mt-2" onClick={clear}>Clear Imported Partner Data</button>
+        <button className="px-3 py-2 rounded-full bg-white text-brandInk shadow-soft mt-2" onClick={clear}>Clear Imported Partner Data</button>
       </div>
       {app.pairedData && <div className="card text-sm">
         <div className="font-medium mb-1">Imported Partner Data Summary</div>
@@ -37,7 +37,6 @@ export default function Partner(){
         <div>Journal: {app.pairedData.journal?.length || 0}</div>
         <div>Reflections: {app.pairedData.reflections?.length || 0}</div>
       </div>}
-      <div className="text-xs text-slate-500">Note: This is a local demo-only sharing method. For real sync, a backend (e.g., Supabase) would be used.</div>
     </div>
   );
 }

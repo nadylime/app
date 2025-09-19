@@ -1,5 +1,4 @@
 import React from 'react';
-
 export default function More({ onOpen }){
   const items = [
     ['achievements','Achievements','🏆'],
@@ -15,7 +14,7 @@ export default function More({ onOpen }){
     ['resources','Resources','📚'],
   ];
   return (
-    <div className="p-4">
+    <div className="section">
       <div className="grid grid-cols-2 gap-3">
         {items.map(([key,label,icon])=>(
           <button key={key} onClick={()=>onOpen(key)} className="card text-left">
