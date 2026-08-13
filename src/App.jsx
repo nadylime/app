@@ -2,6 +2,7 @@ import React from 'react';
 import Home from './Home.jsx';
 import Trip from './Trip.jsx';
 import {PEOPLE} from './tripPeople.js';
+import {useSharedTrip} from './shared.js';
 
 const START=[
 {id:'f1',icon:'🛶',name:'Buena Vista rafting',day:'Friday',where:'US-285 / Buena Vista',desc:'A real adventure that works with the drive from Denver to Salida.'},
@@ -11,16 +12,12 @@ const START=[
 {id:'m1',icon:'🌉',name:'Royal Gorge adventure day',day:'Monday',where:'Cañon City',desc:'A bigger excursion for the full open day.'},
 {id:'m2',icon:'🏔️',name:'Mountain ATV / UTV day',day:'Monday',where:'Salida region',desc:'A longer off-road day with no schedule pressure.'}
 ];
-const get=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||'null')??f}catch{return f}};
 
 export default function App(){
  const[tab,setTab]=React.useState('home');
  const[person,setPerson]=React.useState(localStorage.getItem('trip-person')||'Dan');
- const[ideas,setIdeas]=React.useState(()=>get('trip-ideas-v3',START));
- const[votes,setVotes]=React.useState(()=>get('trip-votes-v3',{}));
+ const{ideas,setIdeas,votes,setVotes}=useSharedTrip(START);
  React.useEffect(()=>localStorage.setItem('trip-person',person),[person]);
- React.useEffect(()=>localStorage.setItem('trip-ideas-v3',JSON.stringify(ideas)),[ideas]);
- React.useEffect(()=>localStorage.setItem('trip-votes-v3',JSON.stringify(votes)),[votes]);
  const add=x=>setIdeas(v=>[...v,{...x,id:'i'+Date.now(),icon:'💡',by:person}]);
  const vote=(id,val)=>setVotes(v=>({...v,[person]:{...(v[person]||{}),[id]:val}}));
  const score=id=>PEOPLE.reduce((n,p)=>n+(votes[p]?.[id]==='yes'?2:votes[p]?.[id]==='maybe'?1:0),0);
