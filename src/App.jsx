@@ -1,105 +1,43 @@
 import React from 'react';
 
-const people = [
-  {name:'Dan', age:46, home:'Austin'}, {name:'Emily', age:46, home:'Austin'},
-  {name:'Lyssie', age:16, home:'Austin'}, {name:'Ashton', age:19, home:'Austin'},
-  {name:'Alec', age:24, home:'Atlanta'}, {name:'Addison', age:23, home:'Atlanta'}
+const PEOPLE=['Dan','Emily','Lyssie','Ashton','Alec','Addison'];
+const START=[
+{id:'f1',icon:'🛶',name:'Buena Vista rafting',day:'Friday',where:'US-285 / Buena Vista',desc:'Adventure on the drive from Denver to Salida.'},
+{id:'f2',icon:'🏎️',name:'High-country ATV / UTV',day:'Friday',where:'Buena Vista',desc:'Guided off-road adventure along the route south.'},
+{id:'s1',icon:'🌊',name:"Brown's Canyon rafting",day:'Sunday',where:'Salida / Buena Vista',desc:'Classic Arkansas River adventure close to Salida.'},
+{id:'s2',icon:'🪂',name:'Zipline / aerial course',day:'Sunday',where:'Salida / Buena Vista',desc:'High-energy half-day option.'},
+{id:'m1',icon:'🌉',name:'Royal Gorge adventure day',day:'Monday',where:'Cañon City',desc:'A bigger excursion for the full open day.'},
+{id:'m2',icon:'🏔️',name:'Mountain ATV / UTV day',day:'Monday',where:'Salida region',desc:'A longer off-road day with no schedule pressure.'}
 ];
-
-const activities = [
-  {id:'rafting', icon:'🛶', name:"Brown's Canyon rafting", type:'ADVENTURE', cost:'$$', desc:'Class III–IV whitewater through spectacular canyon scenery. One of the strongest fits for this group.', fit:'Friday or Sunday'},
-  {id:'zipline', icon:'🪂', name:'Captain Zipline + aerial course', type:'ADVENTURE', cost:'$$', desc:'Ziplines, ropes, bridges and challenge elements near Salida. Courses range from entry level to very challenging.', fit:'Friday or Monday'},
-  {id:'atv', icon:'🏎️', name:'Guided ATV / UTV tour', type:'ADVENTURE', cost:'$$$', desc:'Off-road Colorado terrain with a guide. Great option if the group wants speed and a little controlled chaos.', fit:'Monday'},
-  {id:'monarch', icon:'🚠', name:'Monarch Crest Tramway', type:'SCENIC', cost:'$', desc:'Ride to 12,012 feet on the Continental Divide for huge mountain views without committing to a full-day hike.', fit:'Monday'},
-  {id:'hot', icon:'♨️', name:'Mt. Princeton Hot Springs', type:'RECOVERY', cost:'$$', desc:'A good counterbalance to the adventure days. The resort is about 20 minutes from Salida.', fit:'Sunday or Monday'},
-  {id:'royal', icon:'🏔️', name:'Royal Gorge adventure day', type:'BIG DAY', cost:'$$$', desc:'Longer day trip: combine high-adrenaline rafting, ziplining and the Royal Gorge area.', fit:'Monday'},
-  {id:'hike', icon:'🥾', name:'Big mountain hike', type:'OUTDOORS', cost:'$', desc:'Choose a challenging trail based on weather, altitude and the group’s energy after the wedding.', fit:'Monday'},
-  {id:'salida', icon:'🌊', name:'Salida + Arkansas River', type:'EASY', cost:'$', desc:'Downtown Salida, river walk, shops, galleries and food. Best as a flexible half-day rather than the main event.', fit:'Friday or Monday'}
+const OVER=[['Thu 3','✈️','Arrive Denver'],['Fri 4','🔥','Adventure + Salida'],['Sat 5','💍','Wedding'],['Sun 6','🛶','Adventure day'],['Mon 7','🏎️','Full adventure day'],['Tue 8','✈️','Fly home']];
+const PLAN=[
+['Thu, Sep 3','Arrive Denver',['4:10 PM · AUS → DEN · DL3669','6:45 PM · Austin group arrives','8:30 PM · ATL → DEN · Frontier','10:05 PM · Alec & Addison arrive','Night · Courtyard by Marriott Denver Airport']],
+['Fri, Sep 4','Adventure + drive to Salida',['Morning · Leave Denver','Day · Adventure on or near US-285 / Buena Vista','3:00 PM+ · Airbnb check-in','Evening · Dinner in Salida']],
+['Sat, Sep 5','Wedding',['Day · Wedding','Evening · Wedding celebration']],
+['Sun, Sep 6','Adventure day',['11:00 AM · Airbnb checkout','Day · Group-selected adventure','Evening · Dinner / flexible plans']],
+['Mon, Sep 7','Full adventure day',['Day · Group-selected big adventure','Evening · Final night + pack']],
+['Tue, Sep 8','Fly home',['9:30 AM · DEN → AUS · Delta DL3876','10:43 AM · DEN → ATL · Frontier','12:43 PM · Austin group arrives AUS','3:49 PM · Alec & Addison arrive ATL']]
 ];
-
-const schedule = [
-  {date:'Thu, Sep 3', label:'ARRIVAL', title:'Everyone gets to Denver', tone:'blue', items:[
-    ['4:10 PM','✈️','Dan, Emily, Ashton & Lyssie depart Austin','AUS → DEN · Delta DL3669 · times are local'],
-    ['6:45 PM','🛬','Austin group arrives Denver','Denver is 1 hour behind Austin'],
-    ['8:30 PM','✈️','Alec & Addison depart Atlanta','ATL → DEN · Frontier · times are local'],
-    ['10:05 PM','🛬','Alec & Addison arrive Denver','Denver local time'],
-    ['Night','🏨','First night at Courtyard by Marriott','Denver Airport at Gateway Park · 4343 Airport Way']
-  ]},
-  {date:'Fri, Sep 4', label:'DAY 1', title:'Denver → Salida + first adventure', tone:'green', items:[
-    ['Morning','☕','Breakfast + regroup','No need to rush the morning after travel'],
-    ['Late AM','🚙','Drive Denver → Salida','Plan roughly 2½–3 hours with a stop'],
-    ['3:00 PM','🏡','Airbnb check-in','306 Shepherd Road · hosted by Anne'],
-    ['Afternoon','🔥','Adventure block','Vote in the app. Rafting or zipline are the leading concepts.'],
-    ['Evening','🍽️','Dinner in Salida','Keep it relaxed and protect Saturday morning']
-  ]},
-  {date:'Sat, Sep 5', label:'WEDDING', title:'Wedding day', tone:'pink', items:[
-    ['Morning','🥞','Family breakfast','No major activity scheduled'],
-    ['Day','💍','WEDDING','Protected calendar block'],
-    ['Evening','🥂','Wedding celebration','Enjoy the night. No early adventure scheduled Sunday.']
-  ]},
-  {date:'Sun, Sep 6', label:'DAY 2', title:'Adventure + recovery', tone:'orange', items:[
-    ['11:00 AM','🏡','Airbnb checkout','306 Shepherd Road'],
-    ['Late AM','🛶','Main adventure','Brown’s Canyon rafting is the leading candidate'],
-    ['Afternoon','♨️','Recovery option','Mt. Princeton Hot Springs or free time'],
-    ['Evening','🍽️','Final Salida-area dinner','Group dinner before the final activity day']
-  ]},
-  {date:'Mon, Sep 7', label:'DAY 3', title:'Choose-your-own Colorado day', tone:'purple', items:[
-    ['Morning','🏎️','Big adventure option','ATV/UTV, zipline, big hike or Royal Gorge'],
-    ['Afternoon','🚠','Scenic / flexible block','Monarch Crest Tramway, Salida or free time'],
-    ['Evening','🌙','Last night','Pack and confirm Tuesday airport plan']
-  ]},
-  {date:'Tue, Sep 8', label:'DEPARTURE', title:'Head home', tone:'gray', items:[
-    ['Morning','✈️','Alec & Addison depart Denver','Frontier · 10:43 AM DEN → ATL'],
-    ['3:49 PM','🛬','Alec & Addison arrive Atlanta','Atlanta local time'],
-    ['TBD','✈️','Austin group departs Denver','You provided DL3669, but current schedule data needs confirmation for this date']
-  ]}
-];
-
-function useVotes(){
-  const [votes,setVotes] = React.useState(()=>{try{return JSON.parse(localStorage.getItem('colorado-votes')||'{}')}catch{return {}}});
-  React.useEffect(()=>localStorage.setItem('colorado-votes',JSON.stringify(votes)),[votes]);
-  const setVote=(person,id,value)=>setVotes(v=>({...v,[person]:{...(v[person]||{}),[id]:value}}));
-  return [votes,setVote];
-}
+const get=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||'null')??f}catch{return f}};
 
 export default function App(){
-  const [tab,setTab]=React.useState('home');
-  const [current,setCurrent]=React.useState('Dan');
-  const [votes,setVote]=useVotes();
-  const [groupOpen,setGroupOpen]=React.useState(false);
-  const counts=activities.map(a=>({id:a.id,name:a.name,yes:people.filter(p=>votes[p.name]?.[a.id]==='yes').length,maybe:people.filter(p=>votes[p.name]?.[a.id]==='maybe').length,no:people.filter(p=>votes[p.name]?.[a.id]==='no').length}));
-  const top=[...counts].sort((a,b)=>(b.yes+b.maybe*.35)-(a.yes+a.maybe*.35));
-  return <div className="app-shell">
-    <header className="topbar"><div className="brand"><div className="mark">CO</div><div><div className="overline">FAMILY TRIP</div><h1>Colorado 2026</h1></div></div><button className="group-btn" onClick={()=>setGroupOpen(!groupOpen)}>👥 6</button></header>
-    {groupOpen && <div className="group-pop card"><div className="pop-title"><b>Trip group</b><button onClick={()=>setGroupOpen(false)}>×</button></div><div className="people-grid">{people.map(p=><button className={current===p.name?'person selected':'person'} key={p.name} onClick={()=>{setCurrent(p.name);setGroupOpen(false)}}><b>{p.name}</b><span>{p.age} · {p.home}</span></button>)}</div></div>}
-    {tab==='home' && <Home go={setTab} top={top}/>} 
-    {tab==='plan' && <Plan/>}
-    {tab==='vote' && <Vote current={current} setCurrent={setCurrent} votes={votes} setVote={setVote} counts={counts}/>} 
-    {tab==='travel' && <Travel/>}
-    <nav className="bottom-nav">{[['home','⌂','Overview'],['plan','☷','Plan'],['vote','♥','Vote'],['travel','✈','Travel']].map(n=><button key={n[0]} className={tab===n[0]?'active':''} onClick={()=>setTab(n[0])}><span>{n[1]}</span><small>{n[2]}</small></button>)}</nav>
-  </div>
+ const [tab,setTab]=React.useState('home');
+ const [person,setPerson]=React.useState(localStorage.getItem('trip-person')||'Dan');
+ const [ideas,setIdeas]=React.useState(()=>get('trip-ideas-v3',START));
+ const [votes,setVotes]=React.useState(()=>get('trip-votes-v3',{}));
+ React.useEffect(()=>localStorage.setItem('trip-person',person),[person]);
+ React.useEffect(()=>localStorage.setItem('trip-ideas-v3',JSON.stringify(ideas)),[ideas]);
+ React.useEffect(()=>localStorage.setItem('trip-votes-v3',JSON.stringify(votes)),[votes]);
+ const add=x=>setIdeas(v=>[...v,{...x,id:'i'+Date.now(),icon:'💡',by:person}]);
+ const vote=(id,val)=>setVotes(v=>({...v,[person]:{...(v[person]||{}),[id]:val}}));
+ const score=id=>PEOPLE.reduce((n,p)=>n+(votes[p]?.[id]==='yes'?2:votes[p]?.[id]==='maybe'?1:0),0);
+ const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
+ return <div className="app-shell"><header className="topbar"><div className="brand"><div className="mark">CO</div><div><div className="overline">SEP 3–8</div><h1>Colorado Family Trip</h1></div></div><select className="group-btn" value={person} onChange={e=>setPerson(e.target.value)}>{PEOPLE.map(p=><option key={p}>{p}</option>)}</select></header>
+ {tab==='home'&&<Home go={setTab} ranked={ranked} score={score}/>} {tab==='explore'&&<Explore ideas={ideas} add={add}/>} {tab==='vote'&&<Vote ideas={ideas} votes={votes} person={person} vote={vote} score={score} add={add}/>} {tab==='trip'&&<Trip/>}
+ <nav className="bottom-nav">{[['home','⌂','Home'],['explore','⌕','Explore'],['vote','♥','Vote'],['trip','☷','Trip']].map(x=><button key={x[0]} className={tab===x[0]?'active':''} onClick={()=>setTab(x[0])}><span>{x[1]}</span><small>{x[2]}</small></button>)}</nav></div>
 }
-
-function Home({go,top}){return <main className="page">
-  <section className="hero card"><div className="overline light">SEP 3–8 · SALIDA, COLORADO</div><h2>Wedding weekend.<br/>Adventure trip.</h2><p>Six people. One wedding. Three days to make the Colorado part unforgettable.</p><div className="hero-actions"><button className="gold" onClick={()=>go('vote')}>Start voting →</button><button className="ghost" onClick={()=>go('plan')}>View plan</button></div></section>
-  <section className="time-note card"><span>🕐</span><div><b>Time zones handled</b><p>Austin is 1 hour ahead of Denver. Atlanta is 2 hours ahead of Denver. Flight times shown in the app are local airport times.</p></div></section>
-  <div className="section-head"><h3>Trip at a glance</h3><span>6 travelers</span></div>
-  <div className="stats"><div className="stat card"><b>3</b><span>adventure days</span></div><div className="stat card"><b>1</b><span>wedding day</span></div><div className="stat card"><b>2</b><span>stays</span></div></div>
-  <div className="section-head"><h3>What the group is leaning toward</h3><button onClick={()=>go('vote')}>Vote →</button></div>
-  {top.slice(0,3).map((a,i)=><div className="rank card" key={a.id}><div className="rank-num">{i+1}</div><div><b>{a.name}</b><p>{a.yes} yes · {a.maybe} maybe</p></div><div className="bar"><i style={{width:`${Math.max(4,a.yes/6*100)}%`}}/></div></div>)}
-  <div className="section-head"><h3>Next up</h3><button onClick={()=>go('plan')}>Full itinerary →</button></div>
-  {schedule.slice(0,3).map(d=><div className="next card" key={d.date}><div className={`dot ${d.tone}`}/><div><small>{d.date} · {d.label}</small><b>{d.title}</b><p>{d.items[0][2]}</p></div></div>)}
-  <div className="adventure-note"><b>🔥 Adventure setting: 10/10</b><p>The app will prioritize rafting, ziplining, ATV/UTV, challenging hikes and other memorable experiences.</p></div>
-</main>}
-
-function Plan(){return <main className="page"><div className="page-title"><div><div className="overline">MASTER ITINERARY</div><h2>Colorado trip</h2></div><span className="pill">Sep 3–8</span></div>{schedule.map(d=><section className="day" key={d.date}><div className="day-title"><div className={`dot ${d.tone}`}/><div><small>{d.date} · {d.label}</small><h3>{d.title}</h3></div></div><div className="timeline">{d.items.map((x,i)=><div className="timeline-row" key={i}><div className="time">{x[0]}</div><div className="timeline-icon">{x[1]}</div><div><b>{x[2]}</b><p>{x[3]}</p></div></div>)}</div></section>)}</main>}
-
-function Vote({current,setCurrent,votes,setVote,counts}){return <main className="page"><div className="page-title"><div><div className="overline">GROUP DECISIONS</div><h2>Build the adventure</h2></div></div><div className="vote-person card"><span>Voting as</span><select value={current} onChange={e=>setCurrent(e.target.value)}>{people.map(p=><option key={p.name}>{p.name}</option>)}</select></div><div className="vote-instructions">❤️ Pick your favorites. 👍 Mark maybes. 👎 Skip anything you don't want. You can change your vote anytime.</div>{activities.map(a=>{const v=votes[current]?.[a.id];const c=counts.find(x=>x.id===a.id);return <div className="activity card" key={a.id}><div className="activity-head"><div className="activity-icon">{a.icon}</div><div><h3>{a.name}</h3><span className="pill">{a.type}</span> <span className="cost">{a.cost}</span></div></div><p>{a.desc}</p><div className="fit">📅 Best fit: <b>{a.fit}</b></div><div className="vote-buttons">{[['yes','❤️ Want it'],['maybe','👍 Maybe'],['no','👎 Skip']].map(x=><button className={v===x[0]?'chosen':''} key={x[0]} onClick={()=>setVote(current,a.id,x[0])}>{x[1]}</button>)}</div><div className="vote-count">{c.yes} want it · {c.maybe} maybe · {c.no} skip</div></div>})}</main>}
-
-function Travel(){return <main className="page"><div className="page-title"><div><div className="overline">TRAVEL + LODGING</div><h2>Everyone's logistics</h2></div></div><div className="travel-card card"><div className="travel-head"><span>✈️</span><div><h3>Dan · Emily · Ashton · Lyssie</h3><p>Austin → Denver</p></div></div><div className="flight"><div><small>THU SEP 3</small><strong>4:10 PM</strong><span>AUS · Austin</span></div><div className="route"><b>DL3669</b><span>→</span><small>3h 35m</small></div><div className="right"><small>LOCAL</small><strong>6:45 PM</strong><span>DEN · Denver</span></div></div><div className="confirmed">✓ User-provided flight details · 6:45 PM Denver time is 7:45 PM Austin time.</div></div>
-  <div className="travel-card card"><div className="travel-head"><span>✈️</span><div><h3>Alec · Addison</h3><p>Atlanta ↔ Denver · Frontier</p></div></div><div className="flight"><div><small>THU SEP 3</small><strong>8:30 PM</strong><span>ATL · Atlanta</span></div><div className="route"><b>F9</b><span>→</span><small>3h 35m</small></div><div className="right"><small>LOCAL</small><strong>10:05 PM</strong><span>DEN · Denver</span></div></div><div className="flight"><div><small>TUE SEP 8</small><strong>10:43 AM</strong><span>DEN · Denver</span></div><div className="route"><b>F9</b><span>→</span><small>3h 06m</small></div><div className="right"><small>LOCAL</small><strong>3:49 PM</strong><span>ATL · Atlanta</span></div></div><div className="confirmed">✓ Confirmed from the flight screenshot you provided. Atlanta is 2 hours ahead of Denver.</div></div>
-  <div className="stay card"><div className="stay-icon">🏨</div><div><h3>Courtyard by Marriott Denver Airport at Gateway Park</h3><p>4343 Airport Way, Denver, CO 80239</p><small>Thu Sep 3 → Fri Sep 4</small></div></div>
-  <div className="stay card"><div className="stay-icon">🏡</div><div><h3>Home in Salida</h3><p>306 Shepherd Road · Hosted by Anne</p><small>Fri Sep 4 at 3:00 PM → Sun Sep 6 at 11:00 AM</small></div></div>
-  <div className="warning"><b>⚠️ One flight still needs verification</b><p>You said the Austin group flies home Tuesday on DL3669. Current public schedule data shows DL3669 operating DEN → AUS, but I cannot verify the exact Sep 8 departure time from the information available. The app intentionally leaves that flight as TBD rather than inventing a time.</p></div>
-  <div className="time-note card"><span>🕐</span><div><b>Quick time-zone cheat sheet</b><p>Denver → Austin: add 1 hour. Denver → Atlanta: add 2 hours. Austin → Denver: subtract 1 hour. Atlanta → Denver: subtract 2 hours.</p></div></div>
-</main>}
+function Home({go,ranked,score}){return <main className="page"><section className="hero card"><div className="overline light">SALIDA, COLORADO</div><h2>Wedding trip.<br/>Packed with adventure.</h2><p>Vote, add ideas, and fill the three open days together.</p><div className="hero-actions"><button className="gold" onClick={()=>go('explore')}>Explore ideas →</button><button className="ghost" onClick={()=>go('vote')}>Vote</button></div></section><div className="section-head"><h3>Trip overview</h3><button onClick={()=>go('trip')}>Details →</button></div><div className="card" style={{padding:12}}>{OVER.map((x,i)=><div key={x[0]} style={{display:'grid',gridTemplateColumns:'58px 28px 1fr 44px',alignItems:'center',padding:'10px 4px',borderBottom:i<5?'1px solid #eeeae0':'none'}}><b style={{fontSize:11}}>{x[0]}</b><span>{x[1]}</span><strong style={{fontSize:13}}>{x[2]}</strong>{[1,3,4].includes(i)&&<span className="pill">OPEN</span>}</div>)}</div><div className="section-head"><h3>Group favorites</h3><button onClick={()=>go('vote')}>Vote →</button></div>{ranked.slice(0,3).map((a,i)=><div className="rank card" key={a.id}><div className="rank-num">{i+1}</div><div><b>{a.name}</b><p>{a.day} · {a.where}</p></div><b>{score(a.id)} pts</b></div>)}</main>}
+function Explore({ideas,add}){const [q,setQ]=React.useState(''),[day,setDay]=React.useState('Friday');const shown=ideas.filter(a=>a.day===day&&(!q||(`${a.name} ${a.where} ${a.desc}`).toLowerCase().includes(q.toLowerCase())));return <main className="page"><div className="page-title"><div><div className="overline">EXPLORE</div><h2>Find something to do</h2></div></div><div className="vote-person card"><input style={{border:0,outline:0,width:'65%'}} value={q} onChange={e=>setQ(e.target.value)} placeholder="Search ideas..."/><select value={day} onChange={e=>setDay(e.target.value)}><option>Friday</option><option>Sunday</option><option>Monday</option></select></div><div className="vote-instructions">{day==='Friday'?'Friday is an adventure day. Ideas are optimized for the Denver → Salida route, especially the US-285 / Buena Vista corridor.':day==='Sunday'?'Sunday centers on Salida and Buena Vista.':'Monday can use a wider radius because the full day is open.'}</div>{shown.map(a=><div className="activity card" key={a.id}><div className="activity-head"><div className="activity-icon">{a.icon}</div><div><h3>{a.name}</h3><span className="pill">{a.where}</span></div></div><p>{a.desc}</p></div>)}<QuickAdd add={add}/></main>}
+function QuickAdd({add}){const [open,setOpen]=React.useState(false),[name,setName]=React.useState(''),[day,setDay]=React.useState('Friday'),[note,setNote]=React.useState('');return <div style={{marginTop:14}}><button className="btn btn-primary" onClick={()=>setOpen(!open)}>＋ Add your own recommendation</button>{open&&<form className="card" style={{padding:14,marginTop:10,display:'grid',gap:8}} onSubmit={e=>{e.preventDefault();if(!name)return;add({name,day,where:'Family suggestion',desc:note});setName('');setNote('');setOpen(false)}}><input value={name} onChange={e=>setName(e.target.value)} placeholder="Activity or place"/><select value={day} onChange={e=>setDay(e.target.value)}><option>Friday</option><option>Sunday</option><option>Monday</option></select><textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Optional note"/><button className="gold">Add idea</button></form>}</div>}
+function Vote({ideas,votes,person,vote,score,add}){return <main className="page"><div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds good?</h2></div></div>{ideas.map(a=><div className="activity card" key={a.id}><div className="activity-head"><div className="activity-icon">{a.icon}</div><div><h3>{a.name}</h3><span className="pill">{a.day}</span> <span className="cost">{a.where}</span>{a.by&&<p>Added by {a.by}</p>}</div></div><div className="vote-buttons">{[['yes','❤️ Yes'],['maybe','👍 Maybe'],['no','👎 No']].map(x=><button key={x[0]} className={votes[person]?.[a.id]===x[0]?'chosen':''} onClick={()=>vote(a.id,x[0])}>{x[1]}</button>)}</div><div className="vote-count">Group score: {score(a.id)}</div></div>)}<QuickAdd add={add}/></main>}
+function Trip(){return <main className="page"><div className="page-title"><div><div className="overline">DETAILS</div><h2>Trip itinerary</h2></div></div>{PLAN.map(d=><section className="day" key={d[0]}><div className="day-title"><div><small>{d[0]}</small><h3>{d[1]}</h3></div></div><div className="timeline">{d[2].map((x,i)=><div className="timeline-row" key={i}><div><b>{x}</b></div></div>)}</div></section>)}<div className="section-head"><h3>Stays</h3></div><div className="stay card"><div className="stay-icon">🏨</div><div><h3>Courtyard by Marriott Denver Airport at Gateway Park</h3><small>Thu Sep 3 → Fri Sep 4 · 4343 Airport Way</small></div></div><div className="stay card"><div className="stay-icon">🏡</div><div><h3>Home in Salida</h3><small>Fri Sep 4, 3:00 PM → Sun Sep 6, 11:00 AM · 306 Shepherd Road</small></div></div></main>}
