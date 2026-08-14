@@ -21,7 +21,7 @@ export default function Chat({person,messages,send,sending,error,refresh}){
         const own=message.author===person;
         return <article className={`chat-message ${own?'own':''}`} key={message.id}>
           {!own&&<div className="chat-avatar">{message.author.slice(0,1)}</div>}
-          <div className="chat-bubble"><b>{own?'You':message.author}</b><p>{message.text}</p><time>{timeLabel(message.createdAt)}</time></div>
+          <div className="chat-bubble"><div className="chat-meta"><b>{own?'You':message.author}</b><time>{timeLabel(message.createdAt)}</time></div><p>{message.text}</p></div>
         </article>;
       })}
       <div ref={endRef}/>

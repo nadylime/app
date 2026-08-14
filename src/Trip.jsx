@@ -4,7 +4,7 @@ import StayDetails from './StayDetails.jsx';
 
 const days=[
   {id:'thu-3',d:'Thu, Sep 3',t:'Arrive Denver',s:'Flights + airport hotel',i:['4:10 PM · AUS → DEN · Delta DL3669','6:45 PM · Austin group arrives DEN','8:30 PM · ATL → DEN · Frontier','10:05 PM · Alec & Addison arrive DEN','Night · Courtyard by Marriott Denver Airport']},
-  {id:'fri-4',d:'Fri, Sep 4',t:'Adventure on the way to Salida',s:'Make the drive part of the adventure',i:['Morning · Leave Denver','Day · Adventure on or near US-285 / Buena Vista','3:00 PM+ · Airbnb check-in','Evening · Dinner + chill time in Salida']},
+  {id:'fri-4',d:'Fri, Sep 4',t:'Adventure + Salida',s:'Make the drive part of the adventure',i:['Morning · Leave Denver','Day · Adventure on the way to Salida','3:00 PM+ · Airbnb check-in','Evening · Dinner + chill time in Salida']},
   {id:'sat-5-adventure',d:'Sat, Sep 5',t:'Saturday adventures',s:'Morning activity + protected free time',i:['Morning · Group-selected nearby adventure','Late morning / early afternoon · Lunch + chill/free time','Afternoon · Shower, relax, and get ready for the wedding']},
   {id:'sat-5-wedding',d:'Sat, Sep 5',t:'Saturday Evening + Wedding',s:'Doors open at 5:00 PM',w:true},
   {id:'sun-6',d:'Sun, Sep 6',t:'Adventure or chill day',s:'Keep the day flexible',i:['11:00 AM · Airbnb checkout','Day · Group-selected adventure or intentional chill/free time','Evening · Dinner + Sunday night stay still to book']},

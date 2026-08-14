@@ -25,7 +25,7 @@ export default function App(){
   const [person,setPerson]=React.useState(()=>localStorage.getItem('trip-person')||'');
   const [selected,setSelected]=React.useState(null);
   const [exploreDay,setExploreDay]=React.useState('Friday');
-  const {ideas,setIdeas,votes,setVotes}=useSharedTrip(START);
+  const {ideas,setIdeas,votes,setVotes,voteDays,setVoteDays}=useSharedTrip(START);
   const chat=useSharedChat(person,tab==='chat');
 
   React.useEffect(()=>{
@@ -42,6 +42,7 @@ export default function App(){
 
   const add=x=>setIdeas(current=>[...current,{...x,id:'i'+Date.now(),icon:'💡',by:person}]);
   const vote=(id,val)=>setVotes(current=>({...current,[person]:{...(current[person]||{}),[id]:val}}));
+  const chooseVoteDay=(id,day)=>setVoteDays(current=>({...current,[person]:{...(current[person]||{}),[id]:day}}));
   const score=id=>PEOPLE.reduce((total,name)=>total+(votes[name]?.[id]==='yes'?2:votes[name]?.[id]==='maybe'?1:0),0);
   const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
   const openDay=day=>{setExploreDay(day);setTab('explore')};
@@ -60,7 +61,7 @@ export default function App(){
     {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} 
     {tab==='explore'&&<Explore ideas={ideas} add={add} openIdea={setSelected} initialDay={exploreDay}/>} 
     {tab==='chat'&&<Chat person={person} messages={chat.messages} send={chat.send} sending={chat.sending} error={chat.error} refresh={chat.refresh}/>} 
-    {tab==='vote'&&<Vote ideas={ideas} votes={votes} person={person} vote={vote} score={score} add={add}/>} 
+    {tab==='vote'&&<Vote ideas={ideas} votes={votes} voteDays={voteDays} person={person} vote={vote} chooseVoteDay={chooseVoteDay} score={score} add={add}/>} 
     {tab==='trip'&&<Trip/>}
 
     <nav className="bottom-nav five" aria-label="Main navigation">
@@ -106,15 +107,15 @@ function QuickAdd({add}){
   return <div className="quick-add"><button className="btn btn-primary" onClick={()=>setOpen(!open)}>＋ Add your own recommendation</button>{open&&<form className="card quick-add-form" onSubmit={event=>{event.preventDefault();if(!name.trim())return;add({name:name.trim(),day,where:'Family suggestion',desc:note.trim()||'A family suggestion. Add more details in the chat so everyone knows what the activity would involve.'});setName('');setNote('');setOpen(false)}}><input value={name} onChange={event=>setName(event.target.value)} placeholder="Activity or place"/><select value={day} onChange={event=>setDay(event.target.value)}><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select><textarea value={note} onChange={event=>setNote(event.target.value)} placeholder="Describe what the activity entails"/><button className="gold">Add idea</button></form>}</div>;
 }
 
-function Vote({ideas,votes,person,vote,score,add}){
+function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add}){
   return <main className="page">
-    <div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds good?</h2></div></div>
-    <div className="vote-instructions">Read each description, then vote based on the actual time, activity level, and experience involved. Your selection is saved under <b>{person}</b>.</div>
+    <div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds fun?</h2></div></div>
     {ideas.map(idea=><div className="activity card" key={idea.id}>
       <div className="activity-detail-static">
         <div className="activity-head"><div className="activity-icon">{idea.icon}</div><div><h3>{idea.name}</h3><span className="pill">{idea.day}</span> <span className="cost">{idea.where}</span>{idea.by&&<p>Added by {idea.by}</p>}</div></div>
         <p className="activity-description">{idea.desc}</p>
       </div>
+      <label className="vote-day"><span>Preferred day <small>Suggested: {idea.day}</small></span><select value={voteDays[person]?.[idea.id]||''} onChange={event=>chooseVoteDay(idea.id,event.target.value)} aria-label={`Preferred day for ${idea.name}`}><option value="">Choose day</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></label>
       <div className="vote-buttons">{[['yes','❤️ Yes'],['maybe','👍 Maybe'],['no','👎 No']].map(option=><button key={option[0]} className={votes[person]?.[idea.id]===option[0]?'chosen':''} onClick={()=>vote(idea.id,option[0])}>{option[1]}</button>)}</div>
       <div className="vote-count">Group score: {score(idea.id)}</div>
     </div>)}

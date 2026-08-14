@@ -3,6 +3,7 @@ import React from 'react';
 export function useSharedTrip(defaultIdeas){
   const [ideas,setIdeas]=React.useState(defaultIdeas);
   const [votes,setVotes]=React.useState({});
+  const [voteDays,setVoteDays]=React.useState({});
   const [ready,setReady]=React.useState(false);
 
   React.useEffect(()=>{
@@ -16,6 +17,7 @@ export function useSharedTrip(defaultIdeas){
           setIdeas(merged);
         }
         if(data?.votes)setVotes(data.votes);
+        if(data?.voteDays)setVoteDays(data.voteDays);
       })
       .catch(()=>{})
       .finally(()=>setReady(true));
@@ -27,13 +29,13 @@ export function useSharedTrip(defaultIdeas){
       fetch('/.netlify/functions/trip-state',{
         method:'POST',
         headers:{'content-type':'application/json'},
-        body:JSON.stringify({ideas,votes})
+        body:JSON.stringify({ideas,votes,voteDays})
       }).catch(()=>{});
     },300);
     return()=>clearTimeout(timer);
-  },[ideas,votes,ready]);
+  },[ideas,votes,voteDays,ready]);
 
-  return {ideas,setIdeas,votes,setVotes};
+  return {ideas,setIdeas,votes,setVotes,voteDays,setVoteDays};
 }
 
 export function useSharedChat(person,isOpen){
