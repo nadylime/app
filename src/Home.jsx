@@ -24,7 +24,7 @@ export default function Home({go,ranked,score,openIdea,openDay}){
   };
 
   return <main className="page home-page">
-    <section className="hero card"><h2>Wedding trip.<br/>Packed with adventure.</h2><p>Let the fun begin.</p><div className="hero-actions"><button className="gold" onClick={()=>go('explore')}>Explore ideas →</button><button className="ghost" onClick={()=>go('chat')}>Chat</button></div></section>
+    <section className="hero card"><h2>Wedding trip.<br/>Packed with adventure.</h2><p>Let the fun begin!</p><div className="hero-actions"><button className="gold" onClick={()=>go('explore')}>Explore ideas →</button><button className="ghost" onClick={()=>go('chat')}>Chat</button></div></section>
     <div className="section-head"><h3>Trip overview</h3><button onClick={()=>go('trip')}>Details →</button></div>
     <div className="card overview-card">{OVERVIEW.map((item,index)=><button className="overview-row" key={`${item[0]}-${item[1]}`} onClick={()=>openOverview(index)}><b>{item[0]}</b><OverviewIcon type={overviewIcons[index]}/><strong>{item[1]}</strong></button>)}</div>
     <div className="section-head"><h3>Group favorites</h3><button onClick={()=>go('vote')}>Vote →</button></div>
