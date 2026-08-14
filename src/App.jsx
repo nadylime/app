@@ -2,6 +2,7 @@ import React from 'react';
 import Home from './Home.jsx';
 import Trip from './Trip.jsx';
 import Chat from './Chat.jsx';
+import GoogleMapsLink from './GoogleMapsLink.jsx';
 import {PEOPLE} from './tripPeople.js';
 import {useSharedChat,useSharedTrip} from './shared.js';
 
@@ -198,5 +199,5 @@ function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add}){
 }
 
 function IdeaModal({idea,close}){
-  return <div className="modal-backdrop" onClick={close}><div className="modal-card" onClick={event=>event.stopPropagation()}><button className="modal-close" onClick={close} aria-label="Close">×</button><div className="overline">{idea.day} · {idea.where}</div><h2>{idea.name}</h2><p>{idea.desc}</p><a className="map-link" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(idea.name+' '+idea.where+' Colorado')}`}>Open in Google Maps ↗</a></div></div>;
+  return <div className="modal-backdrop" onClick={close}><div className="modal-card" onClick={event=>event.stopPropagation()}><button className="modal-close" onClick={close} aria-label="Close">×</button><div className="overline">{idea.day} · {idea.where}</div><h2>{idea.name}</h2><p>{idea.desc}</p><GoogleMapsLink className="map-link" query={`${idea.name} ${idea.where} Colorado`}>Open in Google Maps ↗</GoogleMapsLink></div></div>;
 }

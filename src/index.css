@@ -126,3 +126,63 @@
 .vote-count{display:flex;width:max-content;margin:10px 0 0 auto;padding:5px 8px;border:1px solid #e7d6ac;border-radius:99px;background:#faf5e8;color:#7d6329;font-size:9px;font-weight:800}
 
 @media(max-width:430px){.chat-page{height:calc(100dvh - 69px);padding-bottom:71px}.chat-compose{width:calc(100% - 32px);bottom:80px}.bottom-nav small{font-size:9px}.claude-panel form{grid-template-columns:1fr}.claude-panel .btn{width:100%}.explore-days button{font-size:9px}.page-title.explore-title h2{font-size:28px}}
+
+/* Unified type scale and readability */
+html{-webkit-text-size-adjust:100%}
+.topbar h1{font-size:18px;line-height:1.18}
+.trip-date{font-size:11px;line-height:1.3}
+.group-btn{font-size:13px}
+.hero h2{font-size:34px;line-height:1.06}
+.hero p{font-size:15px;line-height:1.45;margin:0}
+.hero-actions button{font-size:14px;min-height:42px}
+.section-head h3{font-size:18px}
+.section-head button{font-size:12px}
+.overview-row>b{font-size:11px}
+.overview-row strong{font-size:14px;line-height:1.35}
+.rank>div:last-of-type b{font-size:15px;line-height:1.3}
+.rank p{font-size:11px}
+.rank>b{font-size:12px}
+.bottom-nav small{font-size:10px;line-height:1.2}
+.map-link{font-size:13px}
+.modal-card p{font-size:14px}
+.identity-card p{font-size:14px}
+.identity-grid button{font-size:15px}
+.itinerary-toggle span{font-size:11px;line-height:1.4}
+.itinerary-line{font-size:13px;line-height:1.45}
+.vote-instructions{font-size:12px}
+.wedding-venue,.wedding-event,.wedding-site{font-size:12px}
+.stay h3{font-size:15px;line-height:1.3}
+.stay p{font-size:12px;line-height:1.4}
+.stay small{font-size:11px;line-height:1.35}
+.booking-status{font-size:9px}
+.vote-activity-toggle h3{font-size:18px}
+.vote-activity-toggle small{font-size:10px}
+.vote-details-label{font-size:10px}
+.vote-day{font-size:12px}
+.vote-day select{font-size:12px}
+.vote-buttons button{font-size:12px;min-height:38px}
+.vote-count{font-size:10px}
+.explore-days button{font-size:10px}
+.claude-result-meta span{font-size:10px}
+.claude-result p{font-size:13px;line-height:1.5}
+.why-fit b{font-size:10px}
+.why-fit span{font-size:12px;line-height:1.45}
+.add-result{font-size:12px;min-height:30px}
+.explore-idea-card b{font-size:14px}
+.explore-idea-card small{font-size:11px}
+.claude-intro{font-size:13px}
+.chat-author{font-size:10px}
+.chat-bubble p{font-size:13px;line-height:1.42}
+.chat-compose textarea{font-size:16px;min-height:42px;height:42px;max-height:84px;padding:9px 10px}
+.send-chat{font-size:12px;min-height:38px}
+.empty-chat p{font-size:13px}
+.quick-add>.btn,.quick-add-form button{font-size:13px}
+
+@media(max-width:430px){
+  .topbar h1{font-size:17px}
+  .trip-date{font-size:10px}
+  .group-btn{font-size:12px}
+  .hero h2{font-size:31px}
+  .bottom-nav small{font-size:10px}
+  .explore-days button{font-size:10px}
+}
