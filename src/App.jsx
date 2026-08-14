@@ -61,8 +61,7 @@ export default function App(){
     const checkWhenVisible=()=>{if(document.visibilityState==='visible')checkForUpdate()};
     checkForUpdate();
     document.addEventListener('visibilitychange',checkWhenVisible);
-    const timer=window.setInterval(checkForUpdate,5*60*1000);
-    return()=>{stopped=true;window.clearInterval(timer);document.removeEventListener('visibilitychange',checkWhenVisible)};
+    return()=>{stopped=true;document.removeEventListener('visibilitychange',checkWhenVisible)};
   },[]);
 
   React.useEffect(()=>{
