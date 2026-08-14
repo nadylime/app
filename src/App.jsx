@@ -36,6 +36,10 @@ export default function App(){
   },[person]);
 
   React.useEffect(()=>{
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+  },[tab]);
+
+  React.useEffect(()=>{
     document.title=chat.unread?`(${chat.unread}) Colorado Family Trip`:'Colorado Family Trip';
     if('setAppBadge' in navigator){
       if(chat.unread)navigator.setAppBadge(chat.unread).catch(()=>{});
@@ -62,13 +66,13 @@ export default function App(){
     </header>
 
     {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} 
-    {tab==='explore'&&<Explore ideas={ideas} add={add} openIdea={setSelected} initialDay={exploreDay}/>} 
+    {tab==='explore'&&<Explore ideas={ideas} votes={votes} voteDays={voteDays} add={add} openIdea={setSelected} initialDay={exploreDay}/>} 
     {tab==='chat'&&<Chat person={person} messages={chat.messages} send={chat.send} remove={chat.remove} sending={chat.sending} deleting={chat.deleting} error={chat.error} refresh={chat.refresh}/>} 
     {tab==='vote'&&<Vote ideas={ideas} votes={votes} voteDays={voteDays} person={person} vote={vote} chooseVoteDay={chooseVoteDay} score={score} add={add}/>} 
     {tab==='trip'&&<Trip/>}
 
     <nav className="bottom-nav five" aria-label="Main navigation">
-      {nav.map(item=><button key={item[0]} className={tab===item[0]?'active':''} onClick={()=>setTab(item[0])}>
+      {nav.map(item=><button key={item[0]} className={tab===item[0]?'active':''} onClick={()=>{window.scrollTo({top:0,left:0,behavior:'auto'});setTab(item[0])}}>
         <span className="nav-icon">{item[0]==='chat'?<ChatNavIcon/>:item[0]==='explore'?<ExploreNavIcon/>:item[1]}{item[0]==='chat'&&chat.unread>0&&<em className="nav-badge">{chat.unread>9?'9+':chat.unread}</em>}</span>
         <small>{item[2]}</small>
       </button>)}
@@ -89,14 +93,44 @@ function IdentityGate({choose}){
   </section></div>;
 }
 
-function Explore({ideas,add,openIdea,initialDay}){
+function Explore({ideas,votes,voteDays,add,openIdea,initialDay}){
   const [query,setQuery]=React.useState('');
   const [day,setDay]=React.useState(initialDay||'Friday');
+  const [claudeOpen,setClaudeOpen]=React.useState(false);
+  const [claudeQuestion,setClaudeQuestion]=React.useState('');
+  const [claudeAnswer,setClaudeAnswer]=React.useState('');
+  const [claudeError,setClaudeError]=React.useState('');
+  const [askingClaude,setAskingClaude]=React.useState(false);
   React.useEffect(()=>setDay(initialDay||'Friday'),[initialDay]);
   const shown=ideas.filter(idea=>idea.day===day&&(!query||(`${idea.name} ${idea.where} ${idea.desc}`).toLowerCase().includes(query.toLowerCase())));
+  const openClaude=()=>{
+    setClaudeOpen(true);
+    if(!claudeQuestion)setClaudeQuestion(`What would be a fun, balanced plan for ${day}?`);
+  };
+  const askClaude=async event=>{
+    event.preventDefault();
+    if(!claudeQuestion.trim()||askingClaude)return;
+    setAskingClaude(true);
+    setClaudeError('');
+    try{
+      const response=await fetch('/.netlify/functions/claude',{
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({question:claudeQuestion.trim(),day,ideas,votes,voteDays})
+      });
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.error||'Claude is temporarily unavailable.');
+      setClaudeAnswer(data.answer||'Claude did not return a recommendation.');
+    }catch(error){
+      setClaudeError(error.message||'Claude is temporarily unavailable.');
+    }finally{
+      setAskingClaude(false);
+    }
+  };
   return <main className="page">
     <div className="page-title"><div><div className="overline">EXPLORE</div><h2>Find something to do</h2></div></div>
     <div className="vote-person card"><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Search ideas..."/><select value={day} onChange={event=>setDay(event.target.value)}><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></div>
+    {!claudeOpen?<button className="claude-launch card" onClick={openClaude}><span className="claude-mark">AI</span><span><b>Ask Claude</b><small>Get a personalized trip recommendation</small></span><strong>→</strong></button>:<section className="claude-panel card"><div className="claude-panel-head"><div><div className="overline">TRIP PLANNER</div><h3>Ask Claude</h3></div><button onClick={()=>setClaudeOpen(false)} aria-label="Close Ask Claude">×</button></div><form onSubmit={askClaude}><textarea value={claudeQuestion} maxLength={500} onChange={event=>setClaudeQuestion(event.target.value)} placeholder="What should we do?"/><button className="btn btn-primary" disabled={!claudeQuestion.trim()||askingClaude}>{askingClaude?'Thinking…':'Ask Claude'}</button></form>{claudeError&&<p className="claude-error">{claudeError}</p>}{claudeAnswer&&<div className="claude-answer"><div className="overline">CLAUDE SUGGESTS</div><p>{claudeAnswer}</p></div>}</section>}
     {shown.map(idea=><button className="activity card activity-button" key={idea.id} onClick={()=>openIdea(idea)}><div className="activity-head"><div className="activity-icon">{idea.icon}</div><div><h3>{idea.name}</h3><span className="pill">{idea.where}</span></div></div><p>{idea.desc}</p></button>)}
     <QuickAdd add={add}/>
   </main>;
@@ -116,11 +150,11 @@ function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add}){
     <div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds fun?</h2></div></div>
     {ideas.map(idea=><div className="activity card vote-card" key={idea.id}>
       <button className="vote-activity-toggle" onClick={()=>setExpanded(expanded===idea.id?'':idea.id)} aria-expanded={expanded===idea.id}>
-        <div className="activity-icon vote-activity-icon">{idea.icon}</div><div><h3>{idea.name}</h3>{idea.by&&<small>Added by {idea.by}</small>}<span className="vote-details-label">{expanded===idea.id?'Hide details':'View details'}</span></div><b aria-hidden="true">{expanded===idea.id?'−':'+'}</b>
+        <div><h3>{idea.name}</h3>{idea.by&&<small>Added by {idea.by}</small>}<span className="vote-details-label">{expanded===idea.id?'Hide details':'View details'}</span></div><b aria-hidden="true">{expanded===idea.id?'−':'+'}</b>
       </button>
       {expanded===idea.id&&<p className="activity-description vote-description">{idea.desc}</p>}
       <label className="vote-day"><span>Preferred day</span><select value={voteDays[person]?.[idea.id]||''} onChange={event=>chooseVoteDay(idea.id,event.target.value)} aria-label={`Preferred day for ${idea.name}`}><option value="">Choose day</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></label>
-      <div className="vote-buttons">{[['yes','❤️ Yes'],['maybe','👍 Maybe'],['no','👎 No']].map(option=><button key={option[0]} className={votes[person]?.[idea.id]===option[0]?'chosen':''} onClick={()=>vote(idea.id,option[0])}>{option[1]}</button>)}</div>
+      <div className="vote-buttons">{[['yes','Yes'],['maybe','Maybe'],['no','No']].map(option=><button key={option[0]} className={votes[person]?.[idea.id]===option[0]?'chosen':''} onClick={()=>vote(idea.id,option[0])}>{option[1]}</button>)}</div>
       <div className="vote-count">Group score: {score(idea.id)}</div>
     </div>)}
     <QuickAdd add={add}/>

@@ -3,10 +3,12 @@ import React from 'react';
 export default function Chat({person,messages,send,remove,sending,deleting,error,refresh}){
   const [text,setText]=React.useState('');
   const [actionMessage,setActionMessage]=React.useState(null);
-  const endRef=React.useRef(null);
+  const threadRef=React.useRef(null);
   const holdTimer=React.useRef(null);
 
-  React.useEffect(()=>{endRef.current?.scrollIntoView({behavior:'smooth'})},[messages.length]);
+  React.useEffect(()=>{
+    if(threadRef.current)threadRef.current.scrollTop=threadRef.current.scrollHeight;
+  },[messages.length]);
   React.useEffect(()=>()=>clearTimeout(holdTimer.current),[]);
 
   const submit=async event=>{
@@ -31,7 +33,7 @@ export default function Chat({person,messages,send,remove,sending,deleting,error
 
   return <main className="page chat-page">
     <div className="page-title chat-title"><div><div className="overline">FAMILY CHAT</div><h2>Trip talk</h2></div><button className="refresh-chat" onClick={refresh} aria-label="Refresh chat">↻</button></div>
-    <section className="chat-thread card" aria-live="polite">
+    <section className="chat-thread card" aria-live="polite" ref={threadRef}>
       {!messages.length&&<div className="empty-chat"><span>💬</span><h3>Start the conversation</h3><p>“I’m so excited to see everyone!” and “No hiking!” are both acceptable opening statements.</p></div>}
       {messages.map(message=>{
         const own=message.author===person;
@@ -43,7 +45,6 @@ export default function Chat({person,messages,send,remove,sending,deleting,error
           </div>
         </article>;
       })}
-      <div ref={endRef}/>
     </section>
     {error&&<p className="chat-error">{error}</p>}
     <form className="chat-compose card" onSubmit={submit}>
