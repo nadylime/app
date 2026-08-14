@@ -187,12 +187,11 @@ function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add}){
     <div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds fun?</h2></div></div>
     {ideas.map((idea,index)=><div className="activity card vote-card" key={idea.id}>
       <button className="vote-activity-toggle" onClick={()=>setExpanded(expanded===idea.id?'':idea.id)} aria-expanded={expanded===idea.id}>
-        <span className="vote-number">{String(index+1).padStart(2,'0')}</span><div><h3>{idea.name}</h3>{idea.by&&<small>Added by {idea.by}</small>}<span className="vote-details-label">{expanded===idea.id?'Hide details':'View details'}</span></div><b aria-hidden="true">{expanded===idea.id?'−':'+'}</b>
+        <span className="vote-number">{String(index+1).padStart(2,'0')}</span><div><h3>{idea.name}</h3>{idea.by&&<small>Added by {idea.by}</small>}<span className="vote-details-label">{expanded===idea.id?'Hide details':'View details'}</span></div><span className="vote-header-score">{score(idea.id)} pts</span><b aria-hidden="true">{expanded===idea.id?'−':'+'}</b>
       </button>
       {expanded===idea.id&&<p className="activity-description vote-description">{idea.desc}</p>}
       <label className="vote-day"><span>Preferred day</span><select value={voteDays[person]?.[idea.id]||''} onChange={event=>chooseVoteDay(idea.id,event.target.value)} aria-label={`Preferred day for ${idea.name}`}><option value="">Choose day</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></label>
       <div className="vote-buttons">{[['yes','Yes'],['maybe','Maybe'],['no','No']].map(option=><button key={option[0]} className={votes[person]?.[idea.id]===option[0]?'chosen':''} onClick={()=>vote(idea.id,option[0])}>{option[1]}</button>)}</div>
-      <div className="vote-count">Group score: {score(idea.id)}</div>
     </div>)}
     <QuickAdd add={add}/>
   </main>;

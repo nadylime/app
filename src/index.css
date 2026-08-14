@@ -186,3 +186,20 @@ html{-webkit-text-size-adjust:100%}
   .bottom-nav small{font-size:10px}
   .explore-days button{font-size:10px}
 }
+
+/* Compact vote cards */
+.vote-card{padding:11px 13px;margin:8px 0}
+.vote-activity-toggle{grid-template-columns:24px minmax(0,1fr) auto 15px;gap:8px;padding:0}
+.vote-card .vote-number{width:24px;height:24px;border:0;border-radius:0;background:transparent;font-size:9px;font-weight:700;color:#748078}
+.vote-activity-toggle h3{font-size:16px;line-height:1.2;margin:0 0 2px}
+.vote-activity-toggle small{font-size:9px;margin-bottom:1px}
+.vote-details-label{font-size:9px;line-height:1.2}
+.vote-header-score{white-space:nowrap;color:#826727;font-size:9px;font-weight:700;background:#faf5e8;border:1px solid #eadab5;border-radius:999px;padding:4px 6px}
+.vote-activity-toggle>b{font-size:15px}
+.vote-description{font-size:12px!important;line-height:1.45;margin:8px 0 0!important;padding:8px 0 1px!important}
+.vote-day{margin-top:8px;padding:7px 0 0;font-size:11px}
+.vote-day select{min-width:108px;padding:5px 7px;font-size:11px;border-radius:8px}
+.vote-buttons{gap:0;margin-top:8px;border:1px solid #ddd9cf;border-radius:10px;overflow:hidden;background:#faf9f5}
+.vote-buttons button{min-height:32px;padding:6px 3px;border:0;border-right:1px solid #ddd9cf;border-radius:0;background:transparent;font-size:11px}
+.vote-buttons button:last-child{border-right:0}
+.vote-buttons button.chosen{border-color:#183d2a}
