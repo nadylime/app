@@ -3,6 +3,9 @@
   publish = "dist"
   functions = "functions"
 
+[build.environment]
+  NODE_VERSION = "22"
+
 [[headers]]
   for = "/manifest.webmanifest"
   [headers.values]

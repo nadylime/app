@@ -4,38 +4,94 @@ export function useSharedTrip(defaultIdeas){
   const [ideas,setIdeas]=React.useState(defaultIdeas);
   const [votes,setVotes]=React.useState({});
   const [voteDays,setVoteDays]=React.useState({});
-  const [ready,setReady]=React.useState(false);
+  const [error,setError]=React.useState('');
 
   React.useEffect(()=>{
     fetch('/.netlify/functions/trip-state')
-      .then(r=>r.ok?r.json():null)
+      .then(r=>r.ok?r.json():Promise.reject())
       .then(data=>{
-        if(data?.ideas?.length){
-          const current=new Map(defaultIdeas.map(idea=>[idea.id,idea]));
-          const merged=data.ideas.map(idea=>current.has(idea.id)?{...idea,...current.get(idea.id)}:idea);
-          defaultIdeas.forEach(idea=>{if(!merged.some(saved=>saved.id===idea.id))merged.push(idea)});
-          setIdeas(merged);
-        }
+        const current=new Map(defaultIdeas.map(idea=>[idea.id,idea]));
+        const merged=(data?.ideas||[]).map(idea=>current.has(idea.id)?{...idea,...current.get(idea.id)}:idea);
+        defaultIdeas.forEach(idea=>{if(!merged.some(saved=>saved.id===idea.id))merged.push(idea)});
+        setIdeas(merged);
         if(data?.votes)setVotes(data.votes);
         if(data?.voteDays)setVoteDays(data.voteDays);
+        setError('');
       })
-      .catch(()=>{})
-      .finally(()=>setReady(true));
+      .catch(()=>setError('Trip updates are temporarily unavailable.'));
   },[]);
 
-  React.useEffect(()=>{
-    if(!ready)return;
-    const timer=setTimeout(()=>{
-      fetch('/.netlify/functions/trip-state',{
-        method:'POST',
-        headers:{'content-type':'application/json'},
-        body:JSON.stringify({ideas,votes,voteDays})
-      }).catch(()=>{});
-    },300);
-    return()=>clearTimeout(timer);
-  },[ideas,votes,voteDays,ready]);
+  const post=async body=>{
+    const response=await fetch('/.netlify/functions/trip-state',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(!response.ok)throw new Error();
+    setError('');
+  };
 
-  return {ideas,setIdeas,votes,setVotes,voteDays,setVoteDays};
+  const addIdea=async idea=>{
+    setIdeas(current=>[...current,idea]);
+    try{
+      await post({action:'addIdea',idea});
+      return true;
+    }catch{
+      setIdeas(current=>current.filter(item=>item.id!==idea.id));
+      setError('That idea could not be saved. Please try again.');
+      return false;
+    }
+  };
+
+  const setVoteChoice=async(person,activityId,choice)=>{
+    const previous=votes[person]?.[activityId];
+    setVotes(current=>({...current,[person]:{...(current[person]||{}),[activityId]:choice}}));
+    try{
+      await post({action:'setVote',person,activityId,choice});
+      return true;
+    }catch{
+      setVotes(current=>({...current,[person]:{...(current[person]||{}),[activityId]:previous}}));
+      setError('That vote could not be saved. Please try again.');
+      return false;
+    }
+  };
+
+  const setPreferredDay=async(person,activityId,day)=>{
+    const previous=voteDays[person]?.[activityId];
+    setVoteDays(current=>({...current,[person]:{...(current[person]||{}),[activityId]:day}}));
+    try{
+      await post({action:'setPreferredDay',person,activityId,day});
+      return true;
+    }catch{
+      setVoteDays(current=>({...current,[person]:{...(current[person]||{}),[activityId]:previous}}));
+      setError('That preferred day could not be saved. Please try again.');
+      return false;
+    }
+  };
+
+  const refresh=React.useCallback(async()=>{
+    try{
+      const response=await fetch('/.netlify/functions/trip-state',{cache:'no-store'});
+      if(!response.ok)throw new Error();
+      const data=await response.json();
+      const current=new Map(defaultIdeas.map(idea=>[idea.id,idea]));
+      const merged=(data?.ideas||[]).map(idea=>current.has(idea.id)?{...idea,...current.get(idea.id)}:idea);
+      defaultIdeas.forEach(idea=>{if(!merged.some(saved=>saved.id===idea.id))merged.push(idea)});
+      setIdeas(merged);
+      setVotes(data?.votes||{});
+      setVoteDays(data?.voteDays||{});
+      setError('');
+    }catch{
+      setError('Trip updates are temporarily unavailable.');
+    }
+  },[defaultIdeas]);
+
+  React.useEffect(()=>{
+    const timer=setInterval(refresh,15000);
+    return()=>clearInterval(timer);
+  },[refresh]);
+
+  return {ideas,votes,voteDays,error,addIdea,setVoteChoice,setPreferredDay,refresh};
 }
 
 export function useSharedChat(person,isOpen){
@@ -91,7 +147,8 @@ export function useSharedChat(person,isOpen){
       });
       if(!response.ok)throw new Error();
       const data=await response.json();
-      const items=Array.isArray(data.messages)?data.messages:[];
+      const message=data?.message;
+      const items=message?[...messages.filter(item=>item.id!==message.id),message].sort((a,b)=>a.createdAt-b.createdAt):messages;
       setMessages(items);
       markRead(items);
       setError('');
@@ -115,7 +172,8 @@ export function useSharedChat(person,isOpen){
       });
       if(!response.ok)throw new Error();
       const data=await response.json();
-      const items=Array.isArray(data.messages)?data.messages:[];
+      const deletedId=data?.deletedId||id;
+      const items=messages.filter(message=>message.id!==deletedId);
       setMessages(items);
       markRead(items);
       setError('');

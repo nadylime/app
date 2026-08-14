@@ -216,3 +216,4 @@ body,button,select,input,textarea{font-family:var(--font-interface)}
 .rank-num,.idea-index,.claude-result-number,.vote-number,.add-result{font-weight:700}
 .hero-actions button,.gold,.section-head button,.btn,.group-btn,.map-link,.address-link,.identity-grid button,.itinerary-toggle small,.wedding-venue a,.wedding-site,.bottom-nav small,.bottom-nav .active,.chat-avatar,.chat-author,.send-chat,.vote-day,.vote-day select,.vote-buttons button,.vote-details-label,.vote-header-score,.explore-days button,.claude-result-meta span,.add-result,.quick-add-form button{font-weight:700}
 .overline,.nav-badge,.booking-status{font-weight:800}
+.shared-data-error{margin:10px 20px 0;padding:9px 12px;border:1px solid #e7c8c5;border-radius:11px;background:#fff1ef;color:#8f3732;font-size:11px;font-weight:700;line-height:1.4}

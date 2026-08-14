@@ -33,7 +33,7 @@ export default function App(){
   const [person,setPerson]=React.useState(()=>localStorage.getItem('trip-person')||'');
   const [selected,setSelected]=React.useState(null);
   const [exploreDay,setExploreDay]=React.useState('Friday');
-  const {ideas,setIdeas,votes,setVotes,voteDays,setVoteDays}=useSharedTrip(START);
+  const {ideas,votes,voteDays,error:tripError,addIdea,setVoteChoice,setPreferredDay}=useSharedTrip(START);
   const chat=useSharedChat(person,tab==='chat');
 
   React.useEffect(()=>{
@@ -73,9 +73,9 @@ export default function App(){
     }
   },[chat.unread]);
 
-  const add=x=>setIdeas(current=>[...current,{...x,id:'i'+Date.now(),icon:x.icon??'💡',by:person}]);
-  const vote=(id,val)=>setVotes(current=>({...current,[person]:{...(current[person]||{}),[id]:val}}));
-  const chooseVoteDay=(id,day)=>setVoteDays(current=>({...current,[person]:{...(current[person]||{}),[id]:day}}));
+  const add=x=>addIdea({...x,id:`i${Date.now()}${Math.random().toString(36).slice(2,7)}`,icon:x.icon??'💡',by:person,createdAt:Date.now()});
+  const vote=(id,val)=>setVoteChoice(person,id,val);
+  const chooseVoteDay=(id,day)=>setPreferredDay(person,id,day);
   const score=id=>PEOPLE.reduce((total,name)=>total+(votes[name]?.[id]==='yes'?2:votes[name]?.[id]==='maybe'?1:0),0);
   const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
   const openDay=day=>{setExploreDay(day);setTab('explore')};
@@ -93,6 +93,7 @@ export default function App(){
     </header>
 
     {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} 
+    {tripError&&<div className="shared-data-error" role="status">{tripError}</div>}
     {tab==='explore'&&<Explore ideas={ideas} votes={votes} voteDays={voteDays} add={add} openIdea={setSelected} initialDay={exploreDay}/>} 
     {tab==='chat'&&<Chat person={person} messages={chat.messages} send={chat.send} remove={chat.remove} sending={chat.sending} deleting={chat.deleting} error={chat.error} refresh={chat.refresh}/>} 
     {tab==='vote'&&<Vote ideas={ideas} votes={votes} voteDays={voteDays} person={person} vote={vote} chooseVoteDay={chooseVoteDay} score={score} add={add}/>} 
