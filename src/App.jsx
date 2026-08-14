@@ -20,6 +20,8 @@ const START=[
 
 function TripLogo(){return <img className="mark" src="/colorado-trip-logo.png" alt="Magstadt Colorado trip logo"/>}
 
+function ChatNavIcon(){return <svg className="footer-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M8 9h8M8 13h5"/></svg>}
+
 export default function App(){
   const [tab,setTab]=React.useState('home');
   const [person,setPerson]=React.useState(()=>localStorage.getItem('trip-person')||'');
@@ -47,7 +49,7 @@ export default function App(){
   const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
   const openDay=day=>{setExploreDay(day);setTab('explore')};
 
-  const nav=[['home','⌂','Home'],['explore','⌕','Explore'],['chat','◌','Chat'],['vote','♥','Vote'],['trip','☷','Trip']];
+  const nav=[['home','⌂','Home'],['explore','⌕','Explore'],['chat',null,'Chat'],['vote','♥','Vote'],['trip','☷','Trip']];
 
   return <div className="app-shell">
     <header className="topbar">
@@ -66,7 +68,7 @@ export default function App(){
 
     <nav className="bottom-nav five" aria-label="Main navigation">
       {nav.map(item=><button key={item[0]} className={tab===item[0]?'active':''} onClick={()=>setTab(item[0])}>
-        <span className="nav-icon">{item[1]}{item[0]==='chat'&&chat.unread>0&&<em className="nav-badge">{chat.unread>9?'9+':chat.unread}</em>}</span>
+        <span className="nav-icon">{item[0]==='chat'?<ChatNavIcon/>:item[1]}{item[0]==='chat'&&chat.unread>0&&<em className="nav-badge">{chat.unread>9?'9+':chat.unread}</em>}</span>
         <small>{item[2]}</small>
       </button>)}
     </nav>
@@ -108,14 +110,15 @@ function QuickAdd({add}){
 }
 
 function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add}){
+  const [expanded,setExpanded]=React.useState('');
   return <main className="page">
     <div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds fun?</h2></div></div>
-    {ideas.map(idea=><div className="activity card" key={idea.id}>
-      <div className="activity-detail-static">
-        <div className="activity-head"><div className="activity-icon">{idea.icon}</div><div><h3>{idea.name}</h3><span className="pill">{idea.day}</span> <span className="cost">{idea.where}</span>{idea.by&&<p>Added by {idea.by}</p>}</div></div>
-        <p className="activity-description">{idea.desc}</p>
-      </div>
-      <label className="vote-day"><span>Preferred day <small>Suggested: {idea.day}</small></span><select value={voteDays[person]?.[idea.id]||''} onChange={event=>chooseVoteDay(idea.id,event.target.value)} aria-label={`Preferred day for ${idea.name}`}><option value="">Choose day</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></label>
+    {ideas.map(idea=><div className="activity card vote-card" key={idea.id}>
+      <button className="vote-activity-toggle" onClick={()=>setExpanded(expanded===idea.id?'':idea.id)} aria-expanded={expanded===idea.id}>
+        <div className="activity-icon vote-activity-icon">{idea.icon}</div><div><h3>{idea.name}</h3>{idea.by&&<small>Added by {idea.by}</small>}<span className="vote-details-label">{expanded===idea.id?'Hide details':'View details'}</span></div><b aria-hidden="true">{expanded===idea.id?'−':'+'}</b>
+      </button>
+      {expanded===idea.id&&<p className="activity-description vote-description">{idea.desc}</p>}
+      <label className="vote-day"><span>Preferred day</span><select value={voteDays[person]?.[idea.id]||''} onChange={event=>chooseVoteDay(idea.id,event.target.value)} aria-label={`Preferred day for ${idea.name}`}><option value="">Choose day</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></label>
       <div className="vote-buttons">{[['yes','❤️ Yes'],['maybe','👍 Maybe'],['no','👎 No']].map(option=><button key={option[0]} className={votes[person]?.[idea.id]===option[0]?'chosen':''} onClick={()=>vote(idea.id,option[0])}>{option[1]}</button>)}</div>
       <div className="vote-count">Group score: {score(idea.id)}</div>
     </div>)}
