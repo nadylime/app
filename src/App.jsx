@@ -22,6 +22,10 @@ function TripLogo(){return <img className="mark" src="/colorado-trip-logo.png" a
 
 function ChatNavIcon(){return <svg className="footer-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M8 9h8M8 13h5"/></svg>}
 function ExploreNavIcon(){return <svg className="footer-explore-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8Z"/></svg>}
+function HomeNavIcon(){return <svg className="footer-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5.5 9.5V21h13V9.5M9.5 21v-7h5v7"/></svg>}
+function VoteNavIcon(){return <svg className="footer-vote-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20.8 4.7a5.5 5.5 0 0 0-7.8 0L12 5.8l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.5a5.5 5.5 0 0 0 0-7.8Z"/></svg>}
+function TripNavIcon(){return <svg className="footer-trip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r=".75" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r=".75" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r=".75" fill="currentColor" stroke="none"/></svg>}
+function SparkleIcon(){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5Z"/><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7Z"/></svg>}
 
 export default function App(){
   const [tab,setTab]=React.useState('home');
@@ -40,6 +44,28 @@ export default function App(){
   },[tab]);
 
   React.useEffect(()=>{
+    let stopped=false;
+    const checkForUpdate=async()=>{
+      try{
+        const response=await fetch(`/version.json?t=${Date.now()}`,{cache:'no-store'});
+        const latest=(await response.json()).version;
+        if(stopped||!latest||latest===__APP_VERSION__)return;
+        const url=new URL(window.location.href);
+        if(url.searchParams.get('app-version')===latest)return;
+        url.searchParams.set('app-version',latest);
+        window.location.replace(url.toString());
+      }catch{
+        // Stay on the current version when the app is temporarily offline.
+      }
+    };
+    const checkWhenVisible=()=>{if(document.visibilityState==='visible')checkForUpdate()};
+    checkForUpdate();
+    document.addEventListener('visibilitychange',checkWhenVisible);
+    const timer=window.setInterval(checkForUpdate,5*60*1000);
+    return()=>{stopped=true;window.clearInterval(timer);document.removeEventListener('visibilitychange',checkWhenVisible)};
+  },[]);
+
+  React.useEffect(()=>{
     document.title=chat.unread?`(${chat.unread}) Colorado Family Trip`:'Colorado Family Trip';
     if('setAppBadge' in navigator){
       if(chat.unread)navigator.setAppBadge(chat.unread).catch(()=>{});
@@ -47,14 +73,15 @@ export default function App(){
     }
   },[chat.unread]);
 
-  const add=x=>setIdeas(current=>[...current,{...x,id:'i'+Date.now(),icon:'💡',by:person}]);
+  const add=x=>setIdeas(current=>[...current,{...x,id:'i'+Date.now(),icon:x.icon??'💡',by:person}]);
   const vote=(id,val)=>setVotes(current=>({...current,[person]:{...(current[person]||{}),[id]:val}}));
   const chooseVoteDay=(id,day)=>setVoteDays(current=>({...current,[person]:{...(current[person]||{}),[id]:day}}));
   const score=id=>PEOPLE.reduce((total,name)=>total+(votes[name]?.[id]==='yes'?2:votes[name]?.[id]==='maybe'?1:0),0);
   const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
   const openDay=day=>{setExploreDay(day);setTab('explore')};
 
-  const nav=[['home','⌂','Home'],['explore',null,'Explore'],['chat',null,'Chat'],['vote','♥','Vote'],['trip','☷','Trip']];
+  const nav=[['home','Home'],['explore','Explore'],['chat','Chat'],['vote','Vote'],['trip','Trip']];
+  const navIcon=id=>id==='home'?<HomeNavIcon/>:id==='explore'?<ExploreNavIcon/>:id==='chat'?<ChatNavIcon/>:id==='vote'?<VoteNavIcon/>:<TripNavIcon/>;
 
   return <div className="app-shell">
     <header className="topbar">
@@ -73,8 +100,8 @@ export default function App(){
 
     <nav className="bottom-nav five" aria-label="Main navigation">
       {nav.map(item=><button key={item[0]} className={tab===item[0]?'active':''} onClick={()=>{window.scrollTo({top:0,left:0,behavior:'auto'});setTab(item[0])}}>
-        <span className="nav-icon">{item[0]==='chat'?<ChatNavIcon/>:item[0]==='explore'?<ExploreNavIcon/>:item[1]}{item[0]==='chat'&&chat.unread>0&&<em className="nav-badge">{chat.unread>9?'9+':chat.unread}</em>}</span>
-        <small>{item[2]}</small>
+        <span className="nav-icon">{navIcon(item[0])}{item[0]==='chat'&&chat.unread>0&&<em className="nav-badge">{chat.unread>9?'9+':chat.unread}</em>}</span>
+        <small>{item[1]}</small>
       </button>)}
     </nav>
 
@@ -94,19 +121,21 @@ function IdentityGate({choose}){
 }
 
 function Explore({ideas,votes,voteDays,add,openIdea,initialDay}){
-  const [query,setQuery]=React.useState('');
   const [day,setDay]=React.useState(initialDay||'Friday');
-  const [claudeOpen,setClaudeOpen]=React.useState(false);
   const [claudeQuestion,setClaudeQuestion]=React.useState('');
-  const [claudeAnswer,setClaudeAnswer]=React.useState('');
+  const [claudeIntro,setClaudeIntro]=React.useState('');
+  const [claudeResults,setClaudeResults]=React.useState([]);
+  const [addedResults,setAddedResults]=React.useState({});
   const [claudeError,setClaudeError]=React.useState('');
   const [askingClaude,setAskingClaude]=React.useState(false);
   React.useEffect(()=>setDay(initialDay||'Friday'),[initialDay]);
-  const shown=ideas.filter(idea=>idea.day===day&&(!query||(`${idea.name} ${idea.where} ${idea.desc}`).toLowerCase().includes(query.toLowerCase())));
-  const openClaude=()=>{
-    setClaudeOpen(true);
-    if(!claudeQuestion)setClaudeQuestion(`What would be a fun, balanced plan for ${day}?`);
-  };
+  React.useEffect(()=>{
+    setClaudeIntro('');
+    setClaudeResults([]);
+    setAddedResults({});
+    setClaudeError('');
+  },[day]);
+  const shown=ideas.filter(idea=>idea.day===day);
   const askClaude=async event=>{
     event.preventDefault();
     if(!claudeQuestion.trim()||askingClaude)return;
@@ -120,18 +149,26 @@ function Explore({ideas,votes,voteDays,add,openIdea,initialDay}){
       });
       const data=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(data.error||'Claude is temporarily unavailable.');
-      setClaudeAnswer(data.answer||'Claude did not return a recommendation.');
+      setClaudeIntro(data.intro||'Here are a few possibilities to consider.');
+      setClaudeResults(data.ideas||[]);
+      setAddedResults({});
     }catch(error){
       setClaudeError(error.message||'Claude is temporarily unavailable.');
     }finally{
       setAskingClaude(false);
     }
   };
+  const addClaudeResult=(result,index)=>{
+    add({name:result.name,day:result.day||day,where:result.area||'Colorado',desc:`${result.summary}${result.whyItFits?` Why it fits: ${result.whyItFits}`:''}`,icon:''});
+    setAddedResults(current=>({...current,[index]:true}));
+  };
   return <main className="page">
-    <div className="page-title"><div><div className="overline">EXPLORE</div><h2>Find something to do</h2></div></div>
-    <div className="vote-person card"><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Search ideas..."/><select value={day} onChange={event=>setDay(event.target.value)}><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></div>
-    {!claudeOpen?<button className="claude-launch card" onClick={openClaude}><span className="claude-mark">AI</span><span><b>Ask Claude</b><small>Get a personalized trip recommendation</small></span><strong>→</strong></button>:<section className="claude-panel card"><div className="claude-panel-head"><div><div className="overline">TRIP PLANNER</div><h3>Ask Claude</h3></div><button onClick={()=>setClaudeOpen(false)} aria-label="Close Ask Claude">×</button></div><form onSubmit={askClaude}><textarea value={claudeQuestion} maxLength={500} onChange={event=>setClaudeQuestion(event.target.value)} placeholder="What should we do?"/><button className="btn btn-primary" disabled={!claudeQuestion.trim()||askingClaude}>{askingClaude?'Thinking…':'Ask Claude'}</button></form>{claudeError&&<p className="claude-error">{claudeError}</p>}{claudeAnswer&&<div className="claude-answer"><div className="overline">CLAUDE SUGGESTS</div><p>{claudeAnswer}</p></div>}</section>}
-    {shown.map(idea=><button className="activity card activity-button" key={idea.id} onClick={()=>openIdea(idea)}><div className="activity-head"><div className="activity-icon">{idea.icon}</div><div><h3>{idea.name}</h3><span className="pill">{idea.where}</span></div></div><p>{idea.desc}</p></button>)}
+    <div className="page-title explore-title"><div><div className="overline">EXPLORE</div><h2>Find your next adventure</h2></div></div>
+    <div className="explore-days" role="group" aria-label="Explore by day">{['Friday','Saturday','Sunday','Monday'].map(option=><button key={option} className={day===option?'active':''} onClick={()=>setDay(option)}>{option}</button>)}</div>
+    <section className="claude-panel card"><div className="claude-panel-head"><span className="claude-spark"><SparkleIcon/></span><div><div className="overline">ASK CLAUDE</div><h3>Discover something new</h3></div></div><form onSubmit={askClaude}><textarea value={claudeQuestion} maxLength={500} onChange={event=>setClaudeQuestion(event.target.value)} placeholder={`Try: fun hikes for ${day}, rafting options, or an easy afternoon`}/><button className="btn btn-primary" disabled={!claudeQuestion.trim()||askingClaude}>{askingClaude?'Finding ideas…':'Find ideas'}</button></form>{claudeError&&<p className="claude-error">{claudeError}</p>}</section>
+    {claudeResults.length>0&&<section className="claude-results"><div className="section-head explore-section-head"><div><div className="overline">CLAUDE SUGGESTS</div><h3>Ideas worth exploring</h3></div></div>{claudeIntro&&<p className="claude-intro">{claudeIntro}</p>}{claudeResults.map((result,index)=><article className="claude-result card" key={`${result.name}-${index}`}><div className="claude-result-number">{String(index+1).padStart(2,'0')}</div><div className="claude-result-body"><div className="claude-result-meta"><span>{result.day||day}</span>{result.area&&<span>{result.area}</span>}</div><h3>{result.name}</h3><p>{result.summary}</p>{result.whyItFits&&<div className="why-fit"><b>Why it fits</b><span>{result.whyItFits}</span></div>}<button className="add-result" disabled={addedResults[index]} onClick={()=>addClaudeResult(result,index)}>{addedResults[index]?'Added to ideas ✓':'＋ Add to our ideas'}</button></div></article>)}</section>}
+    <div className="section-head explore-section-head"><div><div className="overline">CURRENT IDEAS</div><h3>{day}</h3></div><span>{shown.length}</span></div>
+    <div className="explore-idea-list">{shown.map((idea,index)=><button className="explore-idea-card card" key={idea.id} onClick={()=>openIdea(idea)}><span className="idea-index">{String(index+1).padStart(2,'0')}</span><span><b>{idea.name}</b><small>{idea.where}</small></span><strong aria-hidden="true">→</strong></button>)}</div>
     <QuickAdd add={add}/>
   </main>;
 }
@@ -148,9 +185,9 @@ function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add}){
   const [expanded,setExpanded]=React.useState('');
   return <main className="page">
     <div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds fun?</h2></div></div>
-    {ideas.map(idea=><div className="activity card vote-card" key={idea.id}>
+    {ideas.map((idea,index)=><div className="activity card vote-card" key={idea.id}>
       <button className="vote-activity-toggle" onClick={()=>setExpanded(expanded===idea.id?'':idea.id)} aria-expanded={expanded===idea.id}>
-        <div><h3>{idea.name}</h3>{idea.by&&<small>Added by {idea.by}</small>}<span className="vote-details-label">{expanded===idea.id?'Hide details':'View details'}</span></div><b aria-hidden="true">{expanded===idea.id?'−':'+'}</b>
+        <span className="vote-number">{String(index+1).padStart(2,'0')}</span><div><h3>{idea.name}</h3>{idea.by&&<small>Added by {idea.by}</small>}<span className="vote-details-label">{expanded===idea.id?'Hide details':'View details'}</span></div><b aria-hidden="true">{expanded===idea.id?'−':'+'}</b>
       </button>
       {expanded===idea.id&&<p className="activity-description vote-description">{idea.desc}</p>}
       <label className="vote-day"><span>Preferred day</span><select value={voteDays[person]?.[idea.id]||''} onChange={event=>chooseVoteDay(idea.id,event.target.value)} aria-label={`Preferred day for ${idea.name}`}><option value="">Choose day</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></label>
@@ -162,5 +199,5 @@ function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add}){
 }
 
 function IdeaModal({idea,close}){
-  return <div className="modal-backdrop" onClick={close}><div className="modal-card" onClick={event=>event.stopPropagation()}><button className="modal-close" onClick={close} aria-label="Close">×</button><div className="activity-icon big-icon">{idea.icon}</div><div className="overline">{idea.day} · {idea.where}</div><h2>{idea.name}</h2><p>{idea.desc}</p><a className="map-link" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(idea.name+' '+idea.where+' Colorado')}`}>Open in Google Maps ↗</a></div></div>;
+  return <div className="modal-backdrop" onClick={close}><div className="modal-card" onClick={event=>event.stopPropagation()}><button className="modal-close" onClick={close} aria-label="Close">×</button><div className="overline">{idea.day} · {idea.where}</div><h2>{idea.name}</h2><p>{idea.desc}</p><a className="map-link" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(idea.name+' '+idea.where+' Colorado')}`}>Open in Google Maps ↗</a></div></div>;
 }

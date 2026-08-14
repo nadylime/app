@@ -7,6 +7,16 @@ const cleanIdea=idea=>({
   description:String(idea?.desc||'').slice(0,700)
 });
 
+const validDays=new Set(['Friday','Saturday','Sunday','Monday']);
+
+const cleanResult=result=>({
+  name:String(result?.name||'').trim().slice(0,100),
+  day:validDays.has(result?.day)?result.day:'',
+  area:String(result?.area||'').trim().slice(0,100),
+  summary:String(result?.summary||'').trim().slice(0,500),
+  whyItFits:String(result?.whyItFits||'').trim().slice(0,300)
+});
+
 export default async req=>{
   if(req.method!=='POST')return new Response('Method not allowed',{status:405});
   if(!process.env.ANTHROPIC_API_KEY)return Response.json({error:'Claude is not configured yet.'},{status:503});
@@ -38,8 +48,8 @@ Family question: ${question}`;
       },
       body:JSON.stringify({
         model:MODEL,
-        max_tokens:700,
-        system:'You are a concise family trip planner. Recommend a realistic, balanced plan using the supplied ideas, votes, preferred days, travel timing, wedding timing, and need for downtime. Do not claim that anything is booked or currently available. Use short paragraphs or bullets and keep the answer under 300 words.',
+        max_tokens:1100,
+        system:'You are a concise family trip discovery assistant. Suggest 3 to 5 specific activities that answer the family question. You may suggest worthwhile options not already in the supplied ideas. Respect drive time, the Saturday evening wedding, and the need for downtime. Do not claim live availability, current pricing, or that anything is booked. Return only valid JSON with this exact shape: {"intro":"one short sentence","ideas":[{"name":"activity name","day":"Friday, Saturday, Sunday, or Monday","area":"short area label","summary":"2 concise sentences explaining what the activity entails","whyItFits":"one concise sentence"}]}.',
         messages:[{role:'user',content:prompt}]
       })
     });
@@ -49,7 +59,17 @@ Family question: ${question}`;
       return Response.json({error:'Claude could not make a recommendation right now.'},{status:502});
     }
     const answer=(data.content||[]).filter(item=>item.type==='text').map(item=>item.text).join('\n').trim();
-    return Response.json({answer});
+    const jsonText=answer.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');
+    let parsed;
+    try{
+      parsed=JSON.parse(jsonText);
+    }catch{
+      console.error('Claude returned invalid JSON');
+      return Response.json({error:'Claude returned an incomplete result. Please try again.'},{status:502});
+    }
+    const results=Array.isArray(parsed?.ideas)?parsed.ideas.map(cleanResult).filter(item=>item.name&&item.summary).slice(0,5):[];
+    if(!results.length)return Response.json({error:'Claude did not find any usable ideas. Try a more specific search.'},{status:502});
+    return Response.json({intro:String(parsed?.intro||'').trim().slice(0,220),ideas:results});
   }catch(error){
     console.error('Claude request failed',error?.message||'unknown');
     return Response.json({error:'Claude could not make a recommendation right now.'},{status:502});
