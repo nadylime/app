@@ -15,7 +15,6 @@ export default function Chat({person,messages,send,sending,error,refresh}){
 
   return <main className="page chat-page">
     <div className="page-title chat-title"><div><div className="overline">FAMILY CHAT</div><h2>Trip talk</h2></div><button className="refresh-chat" onClick={refresh} aria-label="Refresh chat">↻</button></div>
-    <div className="vote-instructions">Posting as <b>{person}</b>. Messages are shared with everyone and will still be here the next time you open the app.</div>
     <section className="chat-thread card" aria-live="polite">
       {!messages.length&&<div className="empty-chat"><span>💬</span><h3>Start the conversation</h3><p>“I’m so excited to see everyone!” and “No hiking!” are both acceptable opening statements.</p></div>}
       {messages.map(message=>{
