@@ -16,7 +16,7 @@ const START=[
 {id:'m2',icon:'🏔️',name:'Mountain ATV / UTV day',day:'Monday',where:'Salida region',desc:'A longer off-road day with no schedule pressure.'}
 ];
 
-function ScriptSummitMark(){return <div className="mark script-summit" aria-label="M Script and Summit logo"><svg viewBox="0 0 64 64" role="img" aria-hidden="true"><path className="script-m" d="M10 39 C17 18,22 17,23 35 C24 46,30 19,37 18 C43 17,37 43,45 38 C49 35,51 29,54 24"/><path className="summit" d="M13 49 L23 41 L30 46 L38 37 L52 49"/><path className="snow" d="M34 41 L38 37 L42 41"/></svg></div>}
+function TripLogo(){return <img className="mark" src="/colorado-trip-logo.png" alt="Magstadt Colorado trip logo"/>}
 
 export default function App(){
  const[tab,setTab]=React.useState('home');
@@ -30,7 +30,7 @@ export default function App(){
  const score=id=>PEOPLE.reduce((n,p)=>n+(votes[p]?.[id]==='yes'?2:votes[p]?.[id]==='maybe'?1:0),0);
  const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
  const openDay=day=>{setExploreDay(day);setTab('explore')};
- return <div className="app-shell"><header className="topbar"><div className="brand"><ScriptSummitMark/><div><h1>Colorado Family Trip</h1><div className="trip-date">September 3–8, 2026 · Salida, Colorado</div></div></div><select className="group-btn" value={person} onChange={e=>setPerson(e.target.value)}>{PEOPLE.map(p=><option key={p}>{p}</option>)}</select></header>
+ return <div className="app-shell"><header className="topbar"><div className="brand"><TripLogo/><div><h1>Colorado Family Trip</h1><div className="trip-date">September 3–8, 2026 · Salida, Colorado</div></div></div><select className="group-btn" value={person} onChange={e=>setPerson(e.target.value)}>{PEOPLE.map(p=><option key={p}>{p}</option>)}</select></header>
  {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} {tab==='explore'&&<Explore ideas={ideas} add={add} openIdea={setSelected} initialDay={exploreDay}/>} {tab==='saturday'&&<Saturday ideas={ideas} openIdea={setSelected}/>} {tab==='vote'&&<Vote ideas={ideas} votes={votes} person={person} vote={vote} score={score} add={add} openIdea={setSelected}/>} {tab==='trip'&&<Trip/>}
  <nav className="bottom-nav five">{[['home','⌂','Home'],['explore','⌕','Explore'],['saturday','💍','Saturday'],['vote','♥','Vote'],['trip','☷','Trip']].map(x=><button key={x[0]} className={tab===x[0]?'active':''} onClick={()=>setTab(x[0])}><span>{x[1]}</span><small>{x[2]}</small></button>)}</nav>{selected&&<IdeaModal idea={selected} close={()=>setSelected(null)}/>}</div>
 }
