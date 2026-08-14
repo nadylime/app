@@ -21,6 +21,7 @@ const START=[
 function TripLogo(){return <img className="mark" src="/colorado-trip-logo.png" alt="Magstadt Colorado trip logo"/>}
 
 function ChatNavIcon(){return <svg className="footer-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M8 9h8M8 13h5"/></svg>}
+function ExploreNavIcon(){return <svg className="footer-explore-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8Z"/></svg>}
 
 export default function App(){
   const [tab,setTab]=React.useState('home');
@@ -49,7 +50,7 @@ export default function App(){
   const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
   const openDay=day=>{setExploreDay(day);setTab('explore')};
 
-  const nav=[['home','⌂','Home'],['explore','⌕','Explore'],['chat',null,'Chat'],['vote','♥','Vote'],['trip','☷','Trip']];
+  const nav=[['home','⌂','Home'],['explore',null,'Explore'],['chat',null,'Chat'],['vote','♥','Vote'],['trip','☷','Trip']];
 
   return <div className="app-shell">
     <header className="topbar">
@@ -62,13 +63,13 @@ export default function App(){
 
     {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} 
     {tab==='explore'&&<Explore ideas={ideas} add={add} openIdea={setSelected} initialDay={exploreDay}/>} 
-    {tab==='chat'&&<Chat person={person} messages={chat.messages} send={chat.send} sending={chat.sending} error={chat.error} refresh={chat.refresh}/>} 
+    {tab==='chat'&&<Chat person={person} messages={chat.messages} send={chat.send} remove={chat.remove} sending={chat.sending} deleting={chat.deleting} error={chat.error} refresh={chat.refresh}/>} 
     {tab==='vote'&&<Vote ideas={ideas} votes={votes} voteDays={voteDays} person={person} vote={vote} chooseVoteDay={chooseVoteDay} score={score} add={add}/>} 
     {tab==='trip'&&<Trip/>}
 
     <nav className="bottom-nav five" aria-label="Main navigation">
       {nav.map(item=><button key={item[0]} className={tab===item[0]?'active':''} onClick={()=>setTab(item[0])}>
-        <span className="nav-icon">{item[0]==='chat'?<ChatNavIcon/>:item[1]}{item[0]==='chat'&&chat.unread>0&&<em className="nav-badge">{chat.unread>9?'9+':chat.unread}</em>}</span>
+        <span className="nav-icon">{item[0]==='chat'?<ChatNavIcon/>:item[0]==='explore'?<ExploreNavIcon/>:item[1]}{item[0]==='chat'&&chat.unread>0&&<em className="nav-badge">{chat.unread>9?'9+':chat.unread}</em>}</span>
         <small>{item[2]}</small>
       </button>)}
     </nav>

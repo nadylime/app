@@ -42,6 +42,7 @@ export function useSharedChat(person,isOpen){
   const [messages,setMessages]=React.useState([]);
   const [unread,setUnread]=React.useState(0);
   const [sending,setSending]=React.useState(false);
+  const [deleting,setDeleting]=React.useState(false);
   const [error,setError]=React.useState('');
   const lastReadKey=person?`trip-chat-last-read-${person}`:'';
 
@@ -103,5 +104,29 @@ export function useSharedChat(person,isOpen){
     }
   };
 
-  return {messages,unread,sending,error,send,refresh};
+  const remove=async id=>{
+    if(!id||!person||deleting)return false;
+    setDeleting(true);
+    try{
+      const response=await fetch('/.netlify/functions/chat',{
+        method:'DELETE',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({id,author:person})
+      });
+      if(!response.ok)throw new Error();
+      const data=await response.json();
+      const items=Array.isArray(data.messages)?data.messages:[];
+      setMessages(items);
+      markRead(items);
+      setError('');
+      return true;
+    }catch{
+      setError('That message could not be deleted. Please try again.');
+      return false;
+    }finally{
+      setDeleting(false);
+    }
+  };
+
+  return {messages,unread,sending,deleting,error,send,remove,refresh};
 }

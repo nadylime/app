@@ -22,5 +22,18 @@ export default async req=>{
     return Response.json({messages});
   }
 
+  if(req.method==='DELETE'){
+    const body=await req.json().catch(()=>null);
+    const author=String(body?.author||'');
+    const id=String(body?.id||'');
+    if(!ALLOWED.has(author)||!id)return Response.json({error:'Invalid request'},{status:400});
+    const target=(current.messages||[]).find(message=>message.id===id);
+    if(!target)return Response.json({error:'Message not found'},{status:404});
+    if(target.author!==author)return Response.json({error:'You can only delete your own messages'},{status:403});
+    const messages=(current.messages||[]).filter(message=>message.id!==id);
+    await store.setJSON(KEY,{messages});
+    return Response.json({messages});
+  }
+
   return new Response('Method not allowed',{status:405});
 };
