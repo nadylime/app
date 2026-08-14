@@ -1,42 +1,126 @@
 import React from 'react';
 import Home from './Home.jsx';
 import Trip from './Trip.jsx';
-import Wedding from './Wedding.jsx';
+import Chat from './Chat.jsx';
 import {PEOPLE} from './tripPeople.js';
-import {useSharedTrip} from './shared.js';
+import {useSharedChat,useSharedTrip} from './shared.js';
 
 const START=[
-{id:'f1',icon:'🛶',name:'Buena Vista rafting',day:'Friday',where:'US-285 / Buena Vista',desc:'A real adventure that works with the drive from Denver to Salida.'},
-{id:'f2',icon:'🏎️',name:'High-country ATV / UTV',day:'Friday',where:'Buena Vista',desc:'Guided off-road adventure along the route south.'},
-{id:'a1',icon:'🥾',name:'Saturday morning hike',day:'Saturday',where:'Salida area',desc:'Use the open morning before the wedding for a scenic hike close to town, with plenty of time to get back and get ready.'},
-{id:'a2',icon:'♨️',name:'Saturday hot springs',day:'Saturday',where:'Salida / Buena Vista area',desc:'A lower-stress adventure before the wedding with time to soak, relax, and be back well before 5 PM.'},
-{id:'s1',icon:'🌊',name:"Brown's Canyon rafting",day:'Sunday',where:'Salida / Buena Vista',desc:'Classic Arkansas River adventure close to Salida.'},
-{id:'s2',icon:'🪂',name:'Zipline / aerial course',day:'Sunday',where:'Salida / Buena Vista',desc:'High-energy half-day option.'},
-{id:'m1',icon:'🌉',name:'Royal Gorge adventure day',day:'Monday',where:'Cañon City',desc:'A bigger excursion for the full open day.'},
-{id:'m2',icon:'🏔️',name:'Mountain ATV / UTV day',day:'Monday',where:'Salida region',desc:'A longer off-road day with no schedule pressure.'}
+  {id:'f1',icon:'🛶',name:'White Water Rafting',day:'Friday',where:'Buena Vista',desc:'Turn the drive from Denver into a half-day river adventure through Browns Canyon on the Arkansas River. Expect a safety briefing, helmets and life jackets, several miles of Class II–III rapids, and time to change before continuing to Salida.'},
+  {id:'f2',icon:'🏎️',name:'High-Country ATV / UTV Ride',day:'Friday',where:'Buena Vista',desc:'Join a guided off-road ride into the mountains near Buena Vista. The experience typically includes equipment and instruction, then several hours on rocky trails with overlooks, dust, and plenty of bumps before the group continues to Salida.'},
+  {id:'a1',icon:'🥾',name:'Scenic Saturday Hike',day:'Saturday',where:'Salida area',desc:'Use the open morning for a scenic trail close to Salida, with a route selected for mountain views and enough time to return, shower, eat, and get ready. This would be a shorter outing rather than an all-day or remote hike.'},
+  {id:'a2',icon:'♨️',name:'Hot Springs Morning',day:'Saturday',where:'Salida / Buena Vista area',desc:'Spend the morning soaking in natural hot-springs pools with mountain views. This is the lowest-stress Saturday option and leaves a generous buffer to return to the house, have lunch, and get ready for the wedding.'},
+  {id:'s1',icon:'🌊',name:"Brown's Canyon White Water Rafting",day:'Sunday',where:'Salida / Buena Vista',desc:'Take a classic half-day rafting trip through Browns Canyon, one of the area’s signature adventures. The group would receive gear and instruction before paddling Class II–III rapids, with splashes, scenery, and active teamwork.'},
+  {id:'s2',icon:'🪂',name:'Zipline / Aerial Course',day:'Sunday',where:'Salida / Buena Vista',desc:'Spend several hours moving through a guided aerial course with ziplines, suspended bridges, and elevated obstacles. This is a high-energy option that involves heights, harnesses, climbing stairs, and short walks between course sections.'},
+  {id:'m1',icon:'🌉',name:'Royal Gorge Adventure Day',day:'Monday',where:'Cañon City',desc:'Use the full open day for the Royal Gorge area, including the bridge, canyon overlooks, and the option to add a thrill activity such as the gondola, sky coaster, zipline, or rafting. This is the longest excursion and includes a substantial round-trip drive.'},
+  {id:'m2',icon:'🏔️',name:'Mountain ATV / UTV Day',day:'Monday',where:'Salida region',desc:'Book a longer guided off-road ride with no wedding or checkout deadline. Expect mountain trails, uneven terrain, dust, scenic stops, and several hours outdoors, with the exact route and vehicle chosen for the group’s comfort level.'}
 ];
 
 function TripLogo(){return <img className="mark" src="/colorado-trip-logo.png" alt="Magstadt Colorado trip logo"/>}
 
 export default function App(){
- const[tab,setTab]=React.useState('home');
- const[person,setPerson]=React.useState(localStorage.getItem('trip-person')||'Dan');
- const[selected,setSelected]=React.useState(null);
- const[exploreDay,setExploreDay]=React.useState('Friday');
- const{ideas,setIdeas,votes,setVotes}=useSharedTrip(START);
- React.useEffect(()=>localStorage.setItem('trip-person',person),[person]);
- const add=x=>setIdeas(v=>[...v,{...x,id:'i'+Date.now(),icon:'💡',by:person}]);
- const vote=(id,val)=>setVotes(v=>({...v,[person]:{...(v[person]||{}),[id]:val}}));
- const score=id=>PEOPLE.reduce((n,p)=>n+(votes[p]?.[id]==='yes'?2:votes[p]?.[id]==='maybe'?1:0),0);
- const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
- const openDay=day=>{setExploreDay(day);setTab('explore')};
- return <div className="app-shell"><header className="topbar"><div className="brand"><TripLogo/><div><h1>Colorado Family Trip</h1><div className="trip-date">September 3–8, 2026 · Salida, Colorado</div></div></div><select className="group-btn" value={person} onChange={e=>setPerson(e.target.value)}>{PEOPLE.map(p=><option key={p}>{p}</option>)}</select></header>
- {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} {tab==='explore'&&<Explore ideas={ideas} add={add} openIdea={setSelected} initialDay={exploreDay}/>} {tab==='saturday'&&<Saturday ideas={ideas} openIdea={setSelected}/>} {tab==='vote'&&<Vote ideas={ideas} votes={votes} person={person} vote={vote} score={score} add={add} openIdea={setSelected}/>} {tab==='trip'&&<Trip/>}
- <nav className="bottom-nav five">{[['home','⌂','Home'],['explore','⌕','Explore'],['saturday','💍','Saturday'],['vote','♥','Vote'],['trip','☷','Trip']].map(x=><button key={x[0]} className={tab===x[0]?'active':''} onClick={()=>setTab(x[0])}><span>{x[1]}</span><small>{x[2]}</small></button>)}</nav>{selected&&<IdeaModal idea={selected} close={()=>setSelected(null)}/>}</div>
+  const [tab,setTab]=React.useState('home');
+  const [person,setPerson]=React.useState(()=>localStorage.getItem('trip-person')||'');
+  const [selected,setSelected]=React.useState(null);
+  const [exploreDay,setExploreDay]=React.useState('Friday');
+  const {ideas,setIdeas,votes,setVotes}=useSharedTrip(START);
+  const chat=useSharedChat(person,tab==='chat');
+
+  React.useEffect(()=>{
+    if(person)localStorage.setItem('trip-person',person);
+  },[person]);
+
+  React.useEffect(()=>{
+    document.title=chat.unread?`(${chat.unread}) Colorado Family Trip`:'Colorado Family Trip';
+    if('setAppBadge' in navigator){
+      if(chat.unread)navigator.setAppBadge(chat.unread).catch(()=>{});
+      else navigator.clearAppBadge?.().catch(()=>{});
+    }
+  },[chat.unread]);
+
+  const add=x=>setIdeas(current=>[...current,{...x,id:'i'+Date.now(),icon:'💡',by:person}]);
+  const vote=(id,val)=>setVotes(current=>({...current,[person]:{...(current[person]||{}),[id]:val}}));
+  const score=id=>PEOPLE.reduce((total,name)=>total+(votes[name]?.[id]==='yes'?2:votes[name]?.[id]==='maybe'?1:0),0);
+  const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
+  const openDay=day=>{setExploreDay(day);setTab('explore')};
+
+  const nav=[['home','⌂','Home'],['explore','⌕','Explore'],['chat','◌','Chat'],['vote','♥','Vote'],['trip','☷','Trip']];
+
+  return <div className="app-shell">
+    <header className="topbar">
+      <div className="brand"><TripLogo/><div><h1>Colorado Family Trip</h1><div className="trip-date">September 3–8, 2026 · Salida, Colorado</div></div></div>
+      <select className="group-btn" value={person} onChange={event=>setPerson(event.target.value)} aria-label="Who is using the app?">
+        {!person&&<option value="" disabled>Choose name</option>}
+        {PEOPLE.map(name=><option key={name}>{name}</option>)}
+      </select>
+    </header>
+
+    {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} 
+    {tab==='explore'&&<Explore ideas={ideas} add={add} openIdea={setSelected} initialDay={exploreDay}/>} 
+    {tab==='chat'&&<Chat person={person} messages={chat.messages} send={chat.send} sending={chat.sending} error={chat.error} refresh={chat.refresh}/>} 
+    {tab==='vote'&&<Vote ideas={ideas} votes={votes} person={person} vote={vote} score={score} add={add} openIdea={setSelected}/>} 
+    {tab==='trip'&&<Trip/>}
+
+    <nav className="bottom-nav five" aria-label="Main navigation">
+      {nav.map(item=><button key={item[0]} className={tab===item[0]?'active':''} onClick={()=>setTab(item[0])}>
+        <span className="nav-icon">{item[1]}{item[0]==='chat'&&chat.unread>0&&<em className="nav-badge">{chat.unread>9?'9+':chat.unread}</em>}</span>
+        <small>{item[2]}</small>
+      </button>)}
+    </nav>
+
+    {selected&&<IdeaModal idea={selected} close={()=>setSelected(null)}/>} 
+    {!person&&<IdentityGate choose={setPerson}/>} 
+  </div>;
 }
 
-function Explore({ideas,add,openIdea,initialDay}){const[q,setQ]=React.useState(''),[day,setDay]=React.useState(initialDay||'Friday');React.useEffect(()=>setDay(initialDay||'Friday'),[initialDay]);const shown=ideas.filter(a=>a.day===day&&(!q||(`${a.name} ${a.where} ${a.desc}`).toLowerCase().includes(q.toLowerCase())));return <main className="page"><div className="page-title"><div><div className="overline">EXPLORE</div><h2>Find something to do</h2></div></div><div className="vote-person card"><input style={{border:0,outline:0,width:'65%'}} value={q} onChange={e=>setQ(e.target.value)} placeholder="Search ideas..."/><select value={day} onChange={e=>setDay(e.target.value)}><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></div><div className="vote-instructions">Friday works with the Denver to Salida drive. Saturday is open until wedding prep. Sunday centers on Salida and Buena Vista. Monday can use a wider radius.</div>{shown.map(a=><button className="activity card activity-button" key={a.id} onClick={()=>openIdea(a)}><div className="activity-head"><div className="activity-icon">{a.icon}</div><div><h3>{a.name}</h3><span className="pill">{a.where}</span></div></div><p>{a.desc}</p></button>)}<QuickAdd add={add}/></main>}
-function Saturday({ideas,openIdea}){return <main className="page"><div className="page-title"><div><div className="overline">SATURDAY · SEP 5</div><h2>Adventure + wedding</h2></div></div><div className="vote-instructions"><b>Wedding begins at 5:30 PM.</b><br/>Doors open at 5:00 PM and everyone should be seated by 5:20 PM. The morning and early afternoon are open for something close to Salida.</div>{ideas.filter(a=>a.day==='Saturday').map(a=><button className="activity card activity-button" key={a.id} onClick={()=>openIdea(a)}><div className="activity-head"><div className="activity-icon">{a.icon}</div><div><h3>{a.name}</h3><span className="pill">{a.where}</span></div></div><p>{a.desc}</p></button>)}<div className="section-head"><h3>Wedding schedule</h3></div><div className="card" style={{padding:15}}><Wedding/></div></main>}
-function QuickAdd({add}){const[open,setOpen]=React.useState(false),[name,setName]=React.useState(''),[day,setDay]=React.useState('Friday'),[note,setNote]=React.useState('');return <div style={{marginTop:14}}><button className="btn btn-primary" onClick={()=>setOpen(!open)}>＋ Add your own recommendation</button>{open&&<form className="card" style={{padding:14,marginTop:10,display:'grid',gap:8}} onSubmit={e=>{e.preventDefault();if(!name)return;add({name,day,where:'Family suggestion',desc:note});setName('');setNote('');setOpen(false)}}><input value={name} onChange={e=>setName(e.target.value)} placeholder="Activity or place"/><select value={day} onChange={e=>setDay(e.target.value)}><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select><textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Optional note"/><button className="gold">Add idea</button></form>}</div>}
-function Vote({ideas,votes,person,vote,score,add,openIdea}){return <main className="page"><div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds good?</h2></div></div>{ideas.map(a=><div className="activity card" key={a.id}><button className="activity-detail-trigger" onClick={()=>openIdea(a)}><div className="activity-head"><div className="activity-icon">{a.icon}</div><div><h3>{a.name}</h3><span className="pill">{a.day}</span> <span className="cost">{a.where}</span>{a.by&&<p>Added by {a.by}</p>}</div></div><p>{a.desc}</p></button><div className="vote-buttons">{[['yes','❤️ Yes'],['maybe','👍 Maybe'],['no','👎 No']].map(x=><button key={x[0]} className={votes[person]?.[a.id]===x[0]?'chosen':''} onClick={()=>vote(a.id,x[0])}>{x[1]}</button>)}</div><div className="vote-count">Group score: {score(a.id)}</div></div>)}<QuickAdd add={add}/></main>}
-function IdeaModal({idea,close}){return <div className="modal-backdrop" onClick={close}><div className="modal-card" onClick={e=>e.stopPropagation()}><button className="modal-close" onClick={close}>×</button><div className="activity-icon big-icon">{idea.icon}</div><div className="overline">{idea.day} · {idea.where}</div><h2>{idea.name}</h2><p>{idea.desc}</p><a className="map-link" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(idea.name+' '+idea.where+' Colorado')}`}>Open in Google Maps ↗</a></div></div>}
+function IdentityGate({choose}){
+  return <div className="identity-backdrop"><section className="identity-card card" role="dialog" aria-modal="true" aria-labelledby="identity-title">
+    <img src="/colorado-trip-logo.png" alt=""/>
+    <div className="overline">WELCOME TO THE TRIP</div>
+    <h2 id="identity-title">Who are you?</h2>
+    <p>Choose your name once. This device will remember you for votes, ideas, and family chat.</p>
+    <div className="identity-grid">{PEOPLE.map(name=><button key={name} onClick={()=>choose(name)}>{name}</button>)}</div>
+  </section></div>;
+}
+
+function Explore({ideas,add,openIdea,initialDay}){
+  const [query,setQuery]=React.useState('');
+  const [day,setDay]=React.useState(initialDay||'Friday');
+  React.useEffect(()=>setDay(initialDay||'Friday'),[initialDay]);
+  const shown=ideas.filter(idea=>idea.day===day&&(!query||(`${idea.name} ${idea.where} ${idea.desc}`).toLowerCase().includes(query.toLowerCase())));
+  return <main className="page">
+    <div className="page-title"><div><div className="overline">EXPLORE</div><h2>Find something to do</h2></div></div>
+    <div className="vote-person card"><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Search ideas..."/><select value={day} onChange={event=>setDay(event.target.value)}><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></div>
+    <div className="vote-instructions">Friday works with the Denver to Salida drive. Saturday is open until wedding prep. Sunday centers on Salida and Buena Vista. Monday can use a wider radius.</div>
+    {shown.map(idea=><button className="activity card activity-button" key={idea.id} onClick={()=>openIdea(idea)}><div className="activity-head"><div className="activity-icon">{idea.icon}</div><div><h3>{idea.name}</h3><span className="pill">{idea.where}</span></div></div><p>{idea.desc}</p></button>)}
+    <QuickAdd add={add}/>
+  </main>;
+}
+
+function QuickAdd({add}){
+  const [open,setOpen]=React.useState(false);
+  const [name,setName]=React.useState('');
+  const [day,setDay]=React.useState('Friday');
+  const [note,setNote]=React.useState('');
+  return <div className="quick-add"><button className="btn btn-primary" onClick={()=>setOpen(!open)}>＋ Add your own recommendation</button>{open&&<form className="card quick-add-form" onSubmit={event=>{event.preventDefault();if(!name.trim())return;add({name:name.trim(),day,where:'Family suggestion',desc:note.trim()||'A family suggestion. Add more details in the chat so everyone knows what the activity would involve.'});setName('');setNote('');setOpen(false)}}><input value={name} onChange={event=>setName(event.target.value)} placeholder="Activity or place"/><select value={day} onChange={event=>setDay(event.target.value)}><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select><textarea value={note} onChange={event=>setNote(event.target.value)} placeholder="Describe what the activity entails"/><button className="gold">Add idea</button></form>}</div>;
+}
+
+function Vote({ideas,votes,person,vote,score,add,openIdea}){
+  return <main className="page">
+    <div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds good?</h2></div></div>
+    <div className="vote-instructions">Read each description, then vote based on the actual time, activity level, and experience involved. Your selection is saved under <b>{person}</b>.</div>
+    {ideas.map(idea=><div className="activity card" key={idea.id}>
+      <button className="activity-detail-trigger" onClick={()=>openIdea(idea)}>
+        <div className="activity-head"><div className="activity-icon">{idea.icon}</div><div><h3>{idea.name}</h3><span className="pill">{idea.day}</span> <span className="cost">{idea.where}</span>{idea.by&&<p>Added by {idea.by}</p>}</div></div>
+        <p className="activity-description">{idea.desc}</p>
+      </button>
+      <div className="vote-buttons">{[['yes','❤️ Yes'],['maybe','👍 Maybe'],['no','👎 No']].map(option=><button key={option[0]} className={votes[person]?.[idea.id]===option[0]?'chosen':''} onClick={()=>vote(idea.id,option[0])}>{option[1]}</button>)}</div>
+      <div className="vote-count">Group score: {score(idea.id)}</div>
+    </div>)}
+    <QuickAdd add={add}/>
+  </main>;
+}
+
+function IdeaModal({idea,close}){
+  return <div className="modal-backdrop" onClick={close}><div className="modal-card" onClick={event=>event.stopPropagation()}><button className="modal-close" onClick={close} aria-label="Close">×</button><div className="activity-icon big-icon">{idea.icon}</div><div className="overline">{idea.day} · {idea.where}</div><h2>{idea.name}</h2><p>{idea.desc}</p><a className="map-link" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(idea.name+' '+idea.where+' Colorado')}`}>Open in Google Maps ↗</a></div></div>;
+}
