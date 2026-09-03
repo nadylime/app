@@ -2,16 +2,28 @@ import React from 'react';
 
 const FALLBACK_FLIGHTS=[
   {
-    id:'DL3669',airline:'Delta',number:'DL 3669',traveler:'Dan, Emily, Lyssie & Ashton',
+    id:'DL3669',journey:'outbound',airline:'Delta',number:'DL 3669',traveler:'Dan, Emily, Lyssie & Ashton',
     departure:{airport:'AUS',city:'Austin',time:'4:50 PM',gate:'8'},
     arrival:{airport:'DEN',city:'Denver',time:'6:15 PM',gate:'A52'},
     status:'Scheduled',trackingUrl:'https://www.flightaware.com/live/flight/DAL3669'
   },
   {
-    id:'F93599',airline:'Frontier',number:'F9 3599',traveler:'Alec',
+    id:'F93599',journey:'outbound',airline:'Frontier',number:'F9 3599',traveler:'Alec',
     departure:{airport:'ATL',city:'Atlanta',time:'8:30 PM',terminal:'N',gate:'E4'},
     arrival:{airport:'DEN',city:'Denver',time:'10:05 PM'},
     status:'Departing on time',trackingUrl:'https://www.flightaware.com/live/flight/FFT3599'
+  },
+  {
+    id:'DL3876',journey:'return',airline:'Delta',number:'DL 3876',traveler:'Dan, Emily, Lyssie & Ashton',
+    departure:{airport:'DEN',city:'Denver',time:'9:30 AM'},
+    arrival:{airport:'AUS',city:'Austin',time:'12:43 PM'},
+    status:'Scheduled',trackingUrl:'https://www.flightaware.com/live/flight/DAL3876'
+  },
+  {
+    id:'F93600',journey:'return',airline:'Frontier',number:'F9 3600',traveler:'Alec',
+    departure:{airport:'DEN',city:'Denver',time:'10:43 AM'},
+    arrival:{airport:'ATL',city:'Atlanta',time:'3:49 PM'},
+    status:'Scheduled',trackingUrl:'https://www.flightaware.com/live/flight/FFT3600'
   }
 ];
 
@@ -43,14 +55,15 @@ function FlightCard({flight}){
   </article>;
 }
 
-export default function FlightStatus(){
-  const [flights,setFlights]=React.useState(FALLBACK_FLIGHTS);
+export default function FlightStatus({journey='outbound'}){
+  const confirmedFlights=React.useMemo(()=>FALLBACK_FLIGHTS.filter(flight=>flight.journey===journey),[journey]);
+  const [flights,setFlights]=React.useState(confirmedFlights);
   const [live,setLive]=React.useState(false);
   const [updatedAt,setUpdatedAt]=React.useState(null);
 
   const refresh=React.useCallback(async()=>{
     try{
-      const response=await fetch(`/.netlify/functions/flight-status?t=${Date.now()}`,{cache:'no-store'});
+      const response=await fetch(`/.netlify/functions/flight-status?journey=${journey}&t=${Date.now()}`,{cache:'no-store'});
       if(!response.ok)return;
       const data=await response.json();
       if(Array.isArray(data.flights)&&data.flights.length)setFlights(data.flights);
@@ -59,7 +72,7 @@ export default function FlightStatus(){
     }catch{
       // Keep the confirmed itinerary details available if live tracking is offline.
     }
-  },[]);
+  },[journey]);
 
   React.useEffect(()=>{
     refresh();
@@ -68,7 +81,7 @@ export default function FlightStatus(){
   },[refresh]);
 
   return <section className="flight-status-block">
-    <div className="flight-status-heading"><b>Arrival flights</b><span className={live?'live':''}>{live?'Live updates':'Latest confirmed details'}</span></div>
+    <div className="flight-status-heading"><b>{journey==='return'?'Flights home':'Arrival flights'}</b><span className={live?'live':''}>{live?'Live updates':'Latest confirmed details'}</span></div>
     {flights.map(flight=><FlightCard key={flight.id} flight={flight}/>)}
     <p className="flight-update-note">{live&&updatedAt?`Updated ${new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit'}).format(new Date(updatedAt))}. Status refreshes automatically.`:'Use Track flight for the latest airline and airport changes.'}</p>
   </section>;
