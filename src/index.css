@@ -217,3 +217,37 @@ body,button,select,input,textarea{font-family:var(--font-interface)}
 .hero-actions button,.gold,.section-head button,.btn,.group-btn,.map-link,.address-link,.identity-grid button,.itinerary-toggle small,.wedding-venue a,.wedding-site,.bottom-nav small,.bottom-nav .active,.chat-avatar,.chat-author,.send-chat,.vote-day,.vote-day select,.vote-buttons button,.vote-details-label,.vote-header-score,.explore-days button,.claude-result-meta span,.add-result,.quick-add-form button{font-weight:700}
 .overline,.nav-badge,.booking-status{font-weight:800}
 .shared-data-error{margin:10px 20px 0;padding:9px 12px;border:1px solid #e7c8c5;border-radius:11px;background:#fff1ef;color:#8f3732;font-size:11px;font-weight:700;line-height:1.4}
+
+/* Travelers, remote participants, and flight details */
+.identity-grid button span,.identity-grid button small{display:block}
+.identity-grid button small{margin-top:3px;color:#6f7971;font-size:9px;font-weight:700}
+.remote-note{display:grid;gap:3px;margin:-4px 0 12px;padding:12px 14px;border-left:3px solid #c7a753}
+.remote-note b{font-size:13px}
+.remote-note span{color:#626b64;font-size:11px;line-height:1.4}
+.flight-status-block{padding:2px 0 6px}
+.flight-status-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.flight-status-heading>b{font-size:12px}
+.flight-status-heading>span{font-size:9px;font-weight:700;color:#687169}
+.flight-status-heading>span.live{color:#267248}
+.flight-status-heading>span.live:before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#36a165;margin-right:5px}
+.flight-card{border:1px solid #deded5;border-radius:14px;background:#faf9f5;padding:12px;margin-bottom:8px}
+.flight-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.flight-airline{display:block;color:#6e766f;font-size:9px;font-weight:700}
+.flight-card h4{margin:1px 0 0;font-size:15px}
+.flight-status{flex:none;border-radius:999px;background:#eceeea;color:#546057;padding:4px 7px;font-size:9px;font-weight:700}
+.flight-status.on-time,.flight-status.landed{background:#e5f1e9;color:#246541}
+.flight-status.active{background:#e5edf5;color:#285b7c}
+.flight-status.alert{background:#f8e8e5;color:#a03f37}
+.flight-route{display:grid;grid-template-columns:1fr 50px 1fr;align-items:center;margin:12px 0}
+.flight-route>div{display:grid;gap:1px}
+.flight-route b{font-size:18px}
+.flight-route strong{font-size:13px}
+.flight-route small{color:#737b74;font-size:10px}
+.flight-arrival{text-align:right}
+.flight-route-line{position:relative;text-align:center;color:#37674e;font-size:15px;z-index:0}
+.flight-route-line:before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:#cfd9d1;z-index:-2}
+.flight-route-line:after{content:'';position:absolute;inset:50% auto auto 50%;width:23px;height:19px;transform:translate(-50%,-50%);background:#faf9f5;z-index:-1}
+.flight-details{display:flex;flex-wrap:wrap;gap:4px 10px;padding-top:8px;border-top:1px solid #e5e2d9;color:#646d66}
+.flight-details span{font-size:9px}
+.flight-track-link{display:inline-block;margin-top:9px;color:#285f44;font-size:10px;font-weight:700;text-decoration:none}
+.flight-update-note{margin:3px 2px 8px!important;color:#747c75!important;font-size:9px!important;line-height:1.4!important}
