@@ -2,6 +2,8 @@ import {getStore} from '@netlify/blobs';
 
 const CACHE_KEY='colorado-2026-arrival-flights';
 const CACHE_MS=30*60*1000;
+const TRACKING_START=Date.parse('2026-09-03T13:30:00Z');
+const TRACKING_END=Date.parse('2026-09-04T08:30:00Z');
 const FLIGHTS=[
   {
     id:'DL3669',airline:'Delta',number:'DL 3669',iata:'DL3669',traveler:'Dan, Emily, Lyssie & Ashton',
@@ -66,6 +68,7 @@ export default async req=>{
 
   try{
     const cached=await store().get(CACHE_KEY,{type:'json'});
+    if(Date.now()<TRACKING_START||Date.now()>TRACKING_END)return Response.json(cached?{...cached,live:true,trackingComplete:Date.now()>TRACKING_END}:{flights:FLIGHTS,live:false,updatedAt:null},{headers:{'cache-control':'no-store'}});
     if(cached?.updatedAt&&Date.now()-new Date(cached.updatedAt).getTime()<CACHE_MS)return Response.json({...cached,live:true},{headers:{'cache-control':'no-store'}});
     const flights=await Promise.all(FLIGHTS.map(flight=>fetchFlight(flight,key)));
     const result={flights,live:true,updatedAt:new Date().toISOString()};
