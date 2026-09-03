@@ -3,7 +3,7 @@ import Home from './Home.jsx';
 import Trip from './Trip.jsx';
 import Chat from './Chat.jsx';
 import GoogleMapsLink from './GoogleMapsLink.jsx';
-import {PEOPLE} from './tripPeople.js';
+import {PEOPLE,REMOTE_PARTICIPANTS,TRAVELERS} from './tripPeople.js';
 import {useSharedChat,useSharedTrip} from './shared.js';
 
 const START=[
@@ -30,7 +30,10 @@ function SparkleIcon(){return <svg viewBox="0 0 24 24" fill="none" stroke="curre
 
 export default function App(){
   const [tab,setTab]=React.useState('home');
-  const [person,setPerson]=React.useState(()=>localStorage.getItem('trip-person')||'');
+  const [person,setPerson]=React.useState(()=>{
+    const saved=localStorage.getItem('trip-person')||'';
+    return PEOPLE.includes(saved)?saved:'';
+  });
   const [selected,setSelected]=React.useState(null);
   const [exploreDay,setExploreDay]=React.useState('Friday');
   const {ideas,votes,voteDays,error:tripError,addIdea,setVoteChoice,setPreferredDay}=useSharedTrip(START);
@@ -76,7 +79,8 @@ export default function App(){
   const add=x=>addIdea({...x,id:`i${Date.now()}${Math.random().toString(36).slice(2,7)}`,icon:x.icon??'💡',by:person,createdAt:Date.now()});
   const vote=(id,val)=>setVoteChoice(person,id,val);
   const chooseVoteDay=(id,day)=>setPreferredDay(person,id,day);
-  const score=id=>PEOPLE.reduce((total,name)=>total+(votes[name]?.[id]==='yes'?2:votes[name]?.[id]==='maybe'?1:0),0);
+  const isTraveler=TRAVELERS.includes(person);
+  const score=id=>TRAVELERS.reduce((total,name)=>total+(votes[name]?.[id]==='yes'?2:votes[name]?.[id]==='maybe'?1:0),0);
   const ranked=[...ideas].sort((a,b)=>score(b.id)-score(a.id));
   const openDay=day=>{setExploreDay(day);setTab('explore')};
 
@@ -88,15 +92,15 @@ export default function App(){
       <div className="brand"><TripLogo/><div><h1>Colorado Family Trip</h1><div className="trip-date">September 3–8, 2026 · Salida, Colorado</div></div></div>
       <select className="group-btn" value={person} onChange={event=>setPerson(event.target.value)} aria-label="Who is using the app?">
         {!person&&<option value="" disabled>Choose name</option>}
-        {PEOPLE.map(name=><option key={name}>{name}</option>)}
+        {PEOPLE.map(name=><option key={name} value={name}>{name}{REMOTE_PARTICIPANTS.includes(name)?' · remote':''}</option>)}
       </select>
     </header>
 
     {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} 
     {tripError&&<div className="shared-data-error" role="status">{tripError}</div>}
-    {tab==='explore'&&<Explore ideas={ideas} votes={votes} voteDays={voteDays} add={add} openIdea={setSelected} initialDay={exploreDay}/>} 
+    {tab==='explore'&&<Explore ideas={ideas} votes={votes} voteDays={voteDays} add={add} openIdea={setSelected} initialDay={exploreDay} canPlan={isTraveler}/>} 
     {tab==='chat'&&<Chat person={person} messages={chat.messages} send={chat.send} remove={chat.remove} sending={chat.sending} deleting={chat.deleting} error={chat.error} refresh={chat.refresh}/>} 
-    {tab==='vote'&&<Vote ideas={ideas} votes={votes} voteDays={voteDays} person={person} vote={vote} chooseVoteDay={chooseVoteDay} score={score} add={add}/>} 
+    {tab==='vote'&&<Vote ideas={ideas} votes={votes} voteDays={voteDays} person={person} vote={vote} chooseVoteDay={chooseVoteDay} score={score} add={add} canVote={isTraveler}/>} 
     {tab==='trip'&&<Trip/>}
 
     <nav className="bottom-nav five" aria-label="Main navigation">
@@ -117,11 +121,11 @@ function IdentityGate({choose}){
     <div className="overline">WELCOME TO THE TRIP</div>
     <h2 id="identity-title">Who are you?</h2>
     <p>Choose your name once. This device will remember you for votes, ideas, and family chat.</p>
-    <div className="identity-grid">{PEOPLE.map(name=><button key={name} onClick={()=>choose(name)}>{name}</button>)}</div>
+    <div className="identity-grid">{PEOPLE.map(name=><button key={name} onClick={()=>choose(name)}><span>{name}</span>{REMOTE_PARTICIPANTS.includes(name)&&<small>Joining remotely</small>}</button>)}</div>
   </section></div>;
 }
 
-function Explore({ideas,votes,voteDays,add,openIdea,initialDay}){
+function Explore({ideas,votes,voteDays,add,openIdea,initialDay,canPlan}){
   const [day,setDay]=React.useState(initialDay||'Friday');
   const [claudeQuestion,setClaudeQuestion]=React.useState('');
   const [claudeIntro,setClaudeIntro]=React.useState('');
@@ -167,10 +171,10 @@ function Explore({ideas,votes,voteDays,add,openIdea,initialDay}){
     <div className="page-title explore-title"><div><div className="overline">EXPLORE</div><h2>Find your next adventure</h2></div></div>
     <div className="explore-days" role="group" aria-label="Explore by day">{['Friday','Saturday','Sunday','Monday'].map(option=><button key={option} className={day===option?'active':''} onClick={()=>setDay(option)}>{option}</button>)}</div>
     <section className="claude-panel card"><div className="claude-panel-head"><span className="claude-spark"><SparkleIcon/></span><div><div className="overline">ASK CLAUDE</div><h3>Discover something new</h3></div></div><form onSubmit={askClaude}><textarea value={claudeQuestion} maxLength={500} onChange={event=>setClaudeQuestion(event.target.value)} placeholder={`Try: fun hikes for ${day}, rafting options, or an easy afternoon`}/><button className="btn btn-primary" disabled={!claudeQuestion.trim()||askingClaude}>{askingClaude?'Finding ideas…':'Find ideas'}</button></form>{claudeError&&<p className="claude-error">{claudeError}</p>}</section>
-    {claudeResults.length>0&&<section className="claude-results"><div className="section-head explore-section-head"><div><div className="overline">CLAUDE SUGGESTS</div><h3>Ideas worth exploring</h3></div></div>{claudeIntro&&<p className="claude-intro">{claudeIntro}</p>}{claudeResults.map((result,index)=><article className="claude-result card" key={`${result.name}-${index}`}><div className="claude-result-number">{String(index+1).padStart(2,'0')}</div><div className="claude-result-body"><div className="claude-result-meta"><span>{result.day||day}</span>{result.area&&<span>{result.area}</span>}</div><h3>{result.name}</h3><p>{result.summary}</p>{result.whyItFits&&<div className="why-fit"><b>Why it fits</b><span>{result.whyItFits}</span></div>}<button className="add-result" disabled={addedResults[index]} onClick={()=>addClaudeResult(result,index)}>{addedResults[index]?'Added to ideas ✓':'＋ Add to our ideas'}</button></div></article>)}</section>}
+    {claudeResults.length>0&&<section className="claude-results"><div className="section-head explore-section-head"><div><div className="overline">CLAUDE SUGGESTS</div><h3>Ideas worth exploring</h3></div></div>{claudeIntro&&<p className="claude-intro">{claudeIntro}</p>}{claudeResults.map((result,index)=><article className="claude-result card" key={`${result.name}-${index}`}><div className="claude-result-number">{String(index+1).padStart(2,'0')}</div><div className="claude-result-body"><div className="claude-result-meta"><span>{result.day||day}</span>{result.area&&<span>{result.area}</span>}</div><h3>{result.name}</h3><p>{result.summary}</p>{result.whyItFits&&<div className="why-fit"><b>Why it fits</b><span>{result.whyItFits}</span></div>}{canPlan&&<button className="add-result" disabled={addedResults[index]} onClick={()=>addClaudeResult(result,index)}>{addedResults[index]?'Added to ideas ✓':'＋ Add to our ideas'}</button>}</div></article>)}</section>}
     <div className="section-head explore-section-head"><div><div className="overline">CURRENT IDEAS</div><h3>{day}</h3></div><span>{shown.length}</span></div>
     <div className="explore-idea-list">{shown.map((idea,index)=><button className="explore-idea-card card" key={idea.id} onClick={()=>openIdea(idea)}><span className="idea-index">{String(index+1).padStart(2,'0')}</span><span><b>{idea.name}</b><small>{idea.where}</small></span><strong aria-hidden="true">→</strong></button>)}</div>
-    <QuickAdd add={add}/>
+    {canPlan&&<QuickAdd add={add}/>} 
   </main>;
 }
 
@@ -182,19 +186,20 @@ function QuickAdd({add}){
   return <div className="quick-add"><button className="btn btn-primary" onClick={()=>setOpen(!open)}>＋ Add your own recommendation</button>{open&&<form className="card quick-add-form" onSubmit={event=>{event.preventDefault();if(!name.trim())return;add({name:name.trim(),day,where:'Family suggestion',desc:note.trim()||'A family suggestion. Add more details in the chat so everyone knows what the activity would involve.'});setName('');setNote('');setOpen(false)}}><input value={name} onChange={event=>setName(event.target.value)} placeholder="Activity or place"/><select value={day} onChange={event=>setDay(event.target.value)}><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select><textarea value={note} onChange={event=>setNote(event.target.value)} placeholder="Describe what the activity entails"/><button className="gold">Add idea</button></form>}</div>;
 }
 
-function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add}){
+function Vote({ideas,votes,voteDays,person,vote,chooseVoteDay,score,add,canVote}){
   const [expanded,setExpanded]=React.useState('');
   return <main className="page">
     <div className="page-title"><div><div className="overline">FAMILY PICKS</div><h2>What sounds fun?</h2></div></div>
+    {!canVote&&<div className="remote-note card"><b>Following along from home</b><span>You can see the family’s picks here and join the conversation in Chat.</span></div>}
     {ideas.map((idea,index)=><div className="activity card vote-card" key={idea.id}>
       <button className="vote-activity-toggle" onClick={()=>setExpanded(expanded===idea.id?'':idea.id)} aria-expanded={expanded===idea.id}>
         <span className="vote-number">{String(index+1).padStart(2,'0')}</span><div><h3>{idea.name}</h3>{idea.by&&<small>Added by {idea.by}</small>}<span className="vote-details-label">{expanded===idea.id?'Hide details':'View details'}</span></div><span className="vote-header-score">{score(idea.id)} pts</span><b aria-hidden="true">{expanded===idea.id?'−':'+'}</b>
       </button>
       {expanded===idea.id&&<p className="activity-description vote-description">{idea.desc}</p>}
-      <label className="vote-day"><span>Preferred day</span><select value={voteDays[person]?.[idea.id]||''} onChange={event=>chooseVoteDay(idea.id,event.target.value)} aria-label={`Preferred day for ${idea.name}`}><option value="">Choose day</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></label>
-      <div className="vote-buttons">{[['yes','Yes'],['maybe','Maybe'],['no','No']].map(option=><button key={option[0]} className={votes[person]?.[idea.id]===option[0]?'chosen':''} onClick={()=>vote(idea.id,option[0])}>{option[1]}</button>)}</div>
+      {canVote&&<><label className="vote-day"><span>Preferred day</span><select value={voteDays[person]?.[idea.id]||''} onChange={event=>chooseVoteDay(idea.id,event.target.value)} aria-label={`Preferred day for ${idea.name}`}><option value="">Choose day</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Monday</option></select></label>
+      <div className="vote-buttons">{[['yes','Yes'],['maybe','Maybe'],['no','No']].map(option=><button key={option[0]} className={votes[person]?.[idea.id]===option[0]?'chosen':''} onClick={()=>vote(idea.id,option[0])}>{option[1]}</button>)}</div></>}
     </div>)}
-    <QuickAdd add={add}/>
+    {canVote&&<QuickAdd add={add}/>} 
   </main>;
 }
 
