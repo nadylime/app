@@ -3,7 +3,7 @@ import {getTripFirestore,isFirestoreConfigured} from './_firebase.js';
 
 const LEGACY_KEY='magstadt-colorado-chat-2026';
 const TRIP_ID='colorado-2026';
-const ALLOWED=new Set(['Dan','Emily','Lyssie','Ashton','Alec','Addison']);
+const ALLOWED=new Set(['Dan','Emily','Lyssie','Ashton','Alec','Alexis']);
 
 const store=()=>getStore({name:'magstadt-trip',consistency:'strong'});
 
