@@ -3,7 +3,8 @@ import {getTripFirestore,isFirestoreConfigured} from './_firebase.js';
 
 const LEGACY_KEY='magstadt-colorado-2026';
 const TRIP_ID='colorado-2026';
-const ALLOWED=new Set(['Dan','Emily','Lyssie','Ashton','Alec','Addison']);
+const ALLOWED_USERS=new Set(['Dan','Emily','Lyssie','Ashton','Alec','Alexis']);
+const TRAVELERS=new Set(['Dan','Emily','Lyssie','Ashton','Alec']);
 const VALID_DAYS=new Set(['Friday','Saturday','Sunday','Monday']);
 const VALID_CHOICES=new Set(['yes','maybe','no']);
 
@@ -16,7 +17,7 @@ const cleanIdea=value=>{
   const id=cleanId(value?.id);
   const name=String(value?.name||'').trim().slice(0,100);
   const day=VALID_DAYS.has(value?.day)?value.day:'Friday';
-  const by=ALLOWED.has(value?.by)?value.by:'';
+  const by=ALLOWED_USERS.has(value?.by)?value.by:'';
   if(!id||!name||!by)return null;
   return {
     id,
@@ -66,14 +67,14 @@ async function migrateLegacyState(db){
       where:String(idea.where||'').trim().slice(0,100),
       desc:String(idea.desc||'').trim().slice(0,1000),
       icon:String(idea.icon||'').slice(0,12),
-      by:ALLOWED.has(idea.by)?idea.by:'',
+      by:ALLOWED_USERS.has(idea.by)?idea.by:'',
       sortOrder:index,
       createdAt:Number(idea.createdAt)||0
     },{merge:true});
   });
 
   for(const [person,selections] of Object.entries(legacy.votes||{})){
-    if(!ALLOWED.has(person)||!selections||typeof selections!=='object')continue;
+    if(!TRAVELERS.has(person)||!selections||typeof selections!=='object')continue;
     for(const [activityId,choice] of Object.entries(selections)){
       const id=cleanId(activityId);
       if(!id||!VALID_CHOICES.has(choice))continue;
@@ -82,7 +83,7 @@ async function migrateLegacyState(db){
   }
 
   for(const [person,selections] of Object.entries(legacy.voteDays||{})){
-    if(!ALLOWED.has(person)||!selections||typeof selections!=='object')continue;
+    if(!TRAVELERS.has(person)||!selections||typeof selections!=='object')continue;
     for(const [activityId,day] of Object.entries(selections)){
       const id=cleanId(activityId);
       if(!id||!VALID_DAYS.has(day))continue;
@@ -107,7 +108,7 @@ async function firestoreState(){
   const voteDays={};
   votesSnapshot.docs.forEach(document=>{
     const item=document.data();
-    if(!ALLOWED.has(item.person)||!cleanId(item.activityId))return;
+    if(!TRAVELERS.has(item.person)||!cleanId(item.activityId))return;
     if(VALID_CHOICES.has(item.choice))votes[item.person]={...(votes[item.person]||{}),[item.activityId]:item.choice};
     if(VALID_DAYS.has(item.preferredDay))voteDays[item.person]={...(voteDays[item.person]||{}),[item.activityId]:item.preferredDay};
   });
@@ -148,7 +149,7 @@ const parseAction=async req=>{
   }
   const person=String(body?.person||'');
   const activityId=cleanId(body?.activityId);
-  if(!ALLOWED.has(person)||!activityId)return null;
+  if(!TRAVELERS.has(person)||!activityId)return null;
   if(type==='setVote'&&VALID_CHOICES.has(body?.choice))return {type,person,activityId,choice:body.choice};
   if(type==='setPreferredDay'&&VALID_DAYS.has(body?.day))return {type,person,activityId,day:body.day};
   return null;
