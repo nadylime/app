@@ -4,13 +4,13 @@ import StayDetails from './StayDetails.jsx';
 import FlightStatus from './FlightStatus.jsx';
 
 const days=[
-  {id:'thu-3',d:'Thu, Sep 3',t:'Arrive Denver',s:'Flights + airport hotel',flights:true,i:['Night · Courtyard by Marriott Denver Airport']},
+  {id:'thu-3',d:'Thu, Sep 3',t:'Arrive Denver',s:'Flights + airport hotel',flights:'outbound',i:['Night · Courtyard by Marriott Denver Airport']},
   {id:'fri-4',d:'Fri, Sep 4',t:'Adventure + Salida',s:'Make the drive part of the adventure',i:['Morning · Leave Denver','Day · Adventure on the way to Salida','3:00 PM+ · Airbnb check-in','Evening · Dinner + chill time in Salida']},
   {id:'sat-5-adventure',d:'Sat, Sep 5',t:'Saturday adventures',s:'Morning activity + protected free time',i:['Morning · Group-selected nearby adventure','Late morning / early afternoon · Lunch + chill/free time','Afternoon · Shower, relax, and get ready for the wedding']},
   {id:'sat-5-wedding',d:'Sat, Sep 5',t:'Saturday Evening + Wedding',s:'Doors open at 5:00 PM',w:true},
   {id:'sun-6',d:'Sun, Sep 6',t:'Adventure or chill day',s:'Keep the day flexible',i:['11:00 AM · Airbnb checkout','Day · Group-selected adventure or intentional chill/free time','Evening · Dinner + Sunday night stay still to book']},
   {id:'mon-7',d:'Mon, Sep 7',t:'Adventure or slow day',s:'One last open day',i:['Day · Group-selected adventure or a slower free day','Afternoon · Leave room to relax and pack','Evening · Monday night stay still to book']},
-  {id:'tue-8',d:'Tue, Sep 8',t:'Fly home',s:'Denver departures',i:['9:30 AM · DEN → AUS · Delta DL3876','10:43 AM · DEN → ATL · Frontier','12:43 PM · Austin group arrives AUS','3:49 PM · Alec arrives ATL']}
+  {id:'tue-8',d:'Tue, Sep 8',t:'Fly home',s:'Denver departures',flights:'return',i:[]}
 ];
 
 export default function Trip(){
@@ -23,7 +23,7 @@ export default function Trip(){
       <button className="itinerary-toggle" onClick={()=>setOpen(open===day.id?'':day.id)} aria-expanded={open===day.id}>
         <div><small>{day.d}</small><h3>{day.t}</h3><span>{day.s}</span></div><b>{open===day.id?'−':'+'}</b>
       </button>
-      {open===day.id&&<div className="itinerary-details">{day.w?<WeddingDetails/>:<>{day.flights&&<FlightStatus/>}{day.i.map((item,index)=><div className="itinerary-line" key={index}>{item}</div>)}</>}</div>}
+      {open===day.id&&<div className="itinerary-details">{day.w?<WeddingDetails/>:<>{day.flights&&<FlightStatus journey={day.flights}/>} {day.i.map((item,index)=><div className="itinerary-line" key={index}>{item}</div>)}</>}</div>}
     </section>)}
 
     <div className="section-head"><h3>Stays</h3></div>
