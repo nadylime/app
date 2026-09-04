@@ -3,7 +3,7 @@ import Home from './Home.jsx';
 import Trip from './Trip.jsx';
 import Chat from './Chat.jsx';
 import GoogleMapsLink from './GoogleMapsLink.jsx';
-import {PEOPLE,REMOTE_PARTICIPANTS,TRAVELERS} from './tripPeople.js';
+import {DEFAULT_ITINERARY,PEOPLE,REMOTE_PARTICIPANTS,TRAVELERS} from './tripPeople.js';
 import {useSharedChat,useSharedTrip} from './shared.js';
 
 const START=[
@@ -36,7 +36,7 @@ export default function App(){
   });
   const [selected,setSelected]=React.useState(null);
   const [exploreDay,setExploreDay]=React.useState('Friday');
-  const {ideas,votes,voteDays,error:tripError,addIdea,setVoteChoice,setPreferredDay}=useSharedTrip(START);
+  const {ideas,votes,voteDays,itinerary,error:tripError,addIdea,setVoteChoice,setPreferredDay,setItineraryPlan}=useSharedTrip(START,DEFAULT_ITINERARY);
   const chat=useSharedChat(person,tab==='chat');
 
   React.useEffect(()=>{
@@ -101,7 +101,7 @@ export default function App(){
     {tab==='explore'&&<Explore ideas={ideas} votes={votes} voteDays={voteDays} add={add} openIdea={setSelected} initialDay={exploreDay} canPlan={isTraveler}/>} 
     {tab==='chat'&&<Chat person={person} messages={chat.messages} send={chat.send} remove={chat.remove} sending={chat.sending} deleting={chat.deleting} error={chat.error} refresh={chat.refresh}/>} 
     {tab==='vote'&&<Vote ideas={ideas} votes={votes} voteDays={voteDays} person={person} vote={vote} chooseVoteDay={chooseVoteDay} score={score} add={add} canVote={isTraveler}/>} 
-    {tab==='trip'&&<Trip/>}
+    {tab==='trip'&&<Trip person={person} itinerary={itinerary} setItineraryPlan={setItineraryPlan}/>} 
 
     <nav className="bottom-nav five" aria-label="Main navigation">
       {nav.map(item=><button key={item[0]} className={tab===item[0]?'active':''} onClick={()=>{window.scrollTo({top:0,left:0,behavior:'auto'});setTab(item[0])}}>
