@@ -5,8 +5,13 @@ const LEGACY_KEY='magstadt-colorado-2026';
 const TRIP_ID='colorado-2026';
 const ALLOWED_USERS=new Set(['Dan','Emily','Lyssie','Ashton','Alec','Alexis']);
 const TRAVELERS=new Set(['Dan','Emily','Lyssie','Ashton','Alec']);
+const ORGANIZERS=new Set(['Dan','Emily']);
 const VALID_DAYS=new Set(['Friday','Saturday','Sunday','Monday']);
 const VALID_CHOICES=new Set(['yes','maybe','no']);
+const DEFAULT_ITINERARY={
+  Friday:{day:'Friday',title:'Breakfast, shopping & Salida',details:['Breakfast in Denver','Shopping in Denver','Drive to Salida','Optional hike along the way'],locked:true,updatedBy:'Dan',updatedAt:Date.now()},
+  Saturday:{day:'Saturday',title:'UTV riding',details:['Morning · UTV riding','Late morning / early afternoon · Lunch and free time','Afternoon · Shower, relax and get ready for the wedding'],locked:true,updatedBy:'Dan',updatedAt:Date.now()}
+};
 
 const cleanId=value=>{
   const id=String(value||'');
@@ -34,7 +39,8 @@ const cleanIdea=value=>{
 const store=()=>getStore({name:'magstadt-trip',consistency:'strong'});
 
 async function legacyState(){
-  return await store().get(LEGACY_KEY,{type:'json'})||{ideas:[],votes:{},voteDays:{}};
+  const current=await store().get(LEGACY_KEY,{type:'json'})||{ideas:[],votes:{},voteDays:{},itinerary:{}};
+  return {...current,itinerary:{...DEFAULT_ITINERARY,...(current.itinerary||{})}};
 }
 
 async function updateLegacy(action){
@@ -46,6 +52,7 @@ async function updateLegacy(action){
   if(action.type==='setPreferredDay'){
     current.voteDays={...(current.voteDays||{}),[action.person]:{...(current.voteDays?.[action.person]||{}),[action.activityId]:action.day}};
   }
+  if(action.type==='setItinerary')current.itinerary={...(current.itinerary||{}),[action.day]:action.plan};
   await store().setJSON(LEGACY_KEY,current);
   return current;
 }
@@ -99,9 +106,10 @@ async function firestoreState(){
   const db=getTripFirestore();
   await migrateLegacyState(db);
   const trip=db.collection('trips').doc(TRIP_ID);
-  const [ideasSnapshot,votesSnapshot]=await Promise.all([
+  const [ideasSnapshot,votesSnapshot,itinerarySnapshot]=await Promise.all([
     trip.collection('ideas').get(),
-    trip.collection('votes').get()
+    trip.collection('votes').get(),
+    trip.collection('itinerary').get()
   ]);
   const ideas=ideasSnapshot.docs.map(document=>document.data()).sort((a,b)=>(a.sortOrder??9999)-(b.sortOrder??9999)||(a.createdAt||0)-(b.createdAt||0));
   const votes={};
@@ -112,7 +120,17 @@ async function firestoreState(){
     if(VALID_CHOICES.has(item.choice))votes[item.person]={...(votes[item.person]||{}),[item.activityId]:item.choice};
     if(VALID_DAYS.has(item.preferredDay))voteDays[item.person]={...(voteDays[item.person]||{}),[item.activityId]:item.preferredDay};
   });
-  return {ideas,votes,voteDays,storage:'firestore'};
+  const itinerary={};
+  itinerarySnapshot.docs.forEach(document=>{
+    const item=document.data();
+    if(VALID_DAYS.has(item.day))itinerary[item.day]=item;
+  });
+  const missingPlans=Object.entries(DEFAULT_ITINERARY).filter(([day])=>!itinerary[day]);
+  if(missingPlans.length){
+    await Promise.all(missingPlans.map(([day,plan])=>trip.collection('itinerary').doc(day).set(plan,{merge:false})));
+    missingPlans.forEach(([day,plan])=>{itinerary[day]=plan});
+  }
+  return {ideas,votes,voteDays,itinerary,storage:'firestore'};
 }
 
 async function writeFirestore(action){
@@ -138,6 +156,7 @@ async function writeFirestore(action){
       updatedAt:Date.now()
     },{merge:true});
   }
+  if(action.type==='setItinerary')await trip.collection('itinerary').doc(action.day).set(action.plan,{merge:false});
 }
 
 const parseAction=async req=>{
@@ -148,6 +167,13 @@ const parseAction=async req=>{
     return idea?{type,idea}:null;
   }
   const person=String(body?.person||'');
+  if(type==='setItinerary'){
+    const day=String(body?.day||'');
+    const title=String(body?.plan?.title||'').trim().slice(0,100);
+    const details=(Array.isArray(body?.plan?.details)?body.plan.details:[]).map(item=>String(item||'').trim().slice(0,160)).filter(Boolean).slice(0,10);
+    if(!ORGANIZERS.has(person)||!VALID_DAYS.has(day)||!title||!details.length)return null;
+    return {type,person,day,plan:{day,title,details,locked:true,updatedBy:person,updatedAt:Date.now()}};
+  }
   const activityId=cleanId(body?.activityId);
   if(!TRAVELERS.has(person)||!activityId)return null;
   if(type==='setVote'&&VALID_CHOICES.has(body?.choice))return {type,person,activityId,choice:body.choice};
