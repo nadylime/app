@@ -251,3 +251,20 @@ body,button,select,input,textarea{font-family:var(--font-interface)}
 .flight-details span{font-size:9px}
 .flight-track-link{display:inline-block;margin-top:9px;color:#285f44;font-size:10px;font-weight:700;text-decoration:none}
 .flight-update-note{margin:3px 2px 8px!important;color:#747c75!important;font-size:9px!important;line-height:1.4!important}
+
+/* Confirmed itinerary plans */
+.itinerary-card.has-locked-plan{border-color:#cdddcf;border-left:3px solid #3f7657}
+.itinerary-title-row{display:flex;align-items:center;gap:8px;min-width:0}
+.itinerary-title-row h3{min-width:0}
+.itinerary-title-row em{flex:none;border-radius:999px;background:#e5f0e8;color:#2d6847;padding:4px 6px;font-size:8px;font-style:normal;font-weight:800;letter-spacing:.05em}
+.itinerary-line.confirmed-line{display:grid;grid-template-columns:17px 1fr;gap:4px;align-items:start}
+.itinerary-line.confirmed-line span{color:#34704d;font-weight:800}
+.plan-edit-button{width:100%;margin-top:11px;border:1px solid #b9cebe;border-radius:11px;background:#f4f8f5;color:#285f43;padding:9px 12px;font-size:12px;font-weight:700}
+.plan-editor{display:grid;gap:14px}
+.plan-editor h2{margin:0}
+.plan-editor label{display:grid;gap:6px}
+.plan-editor label>span{font-size:12px;font-weight:700;color:#33453a}
+.plan-editor input,.plan-editor textarea{width:100%;font-size:14px;line-height:1.4}
+.plan-editor textarea{min-height:145px}
+.plan-editor label small{color:#717a73;font-size:10px}
+.plan-editor .btn{justify-self:stretch;border-radius:12px;font-size:13px}
