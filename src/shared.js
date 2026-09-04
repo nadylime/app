@@ -1,9 +1,10 @@
 import React from 'react';
 
-export function useSharedTrip(defaultIdeas){
+export function useSharedTrip(defaultIdeas,defaultItinerary={}){
   const [ideas,setIdeas]=React.useState(defaultIdeas);
   const [votes,setVotes]=React.useState({});
   const [voteDays,setVoteDays]=React.useState({});
+  const [itinerary,setItinerary]=React.useState(defaultItinerary);
   const [error,setError]=React.useState('');
 
   React.useEffect(()=>{
@@ -16,6 +17,7 @@ export function useSharedTrip(defaultIdeas){
         setIdeas(merged);
         if(data?.votes)setVotes(data.votes);
         if(data?.voteDays)setVoteDays(data.voteDays);
+        setItinerary({...defaultItinerary,...(data?.itinerary||{})});
         setError('');
       })
       .catch(()=>setError('Trip updates are temporarily unavailable.'));
@@ -69,6 +71,20 @@ export function useSharedTrip(defaultIdeas){
     }
   };
 
+  const setItineraryPlan=async(person,day,plan)=>{
+    const previous=itinerary[day];
+    const next={...plan,day,locked:true,updatedBy:person,updatedAt:Date.now()};
+    setItinerary(current=>({...current,[day]:next}));
+    try{
+      await post({action:'setItinerary',person,day,plan:next});
+      return true;
+    }catch{
+      setItinerary(current=>({...current,[day]:previous}));
+      setError('That itinerary change could not be saved. Please try again.');
+      return false;
+    }
+  };
+
   const refresh=React.useCallback(async()=>{
     try{
       const response=await fetch('/.netlify/functions/trip-state',{cache:'no-store'});
@@ -80,18 +96,19 @@ export function useSharedTrip(defaultIdeas){
       setIdeas(merged);
       setVotes(data?.votes||{});
       setVoteDays(data?.voteDays||{});
+      setItinerary({...defaultItinerary,...(data?.itinerary||{})});
       setError('');
     }catch{
       setError('Trip updates are temporarily unavailable.');
     }
-  },[defaultIdeas]);
+  },[defaultIdeas,defaultItinerary]);
 
   React.useEffect(()=>{
     const timer=setInterval(refresh,15000);
     return()=>clearInterval(timer);
   },[refresh]);
 
-  return {ideas,votes,voteDays,error,addIdea,setVoteChoice,setPreferredDay,refresh};
+  return {ideas,votes,voteDays,itinerary,error,addIdea,setVoteChoice,setPreferredDay,setItineraryPlan,refresh};
 }
 
 export function useSharedChat(person,isOpen){
