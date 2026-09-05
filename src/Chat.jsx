@@ -1,7 +1,8 @@
 import React from 'react';
 
 export default function Chat({person,messages,send,remove,sending,deleting,error,refresh}){
-  const [text,setText]=React.useState('');
+  const draftKey=`trip-chat-draft-${person}`;
+  const [text,setText]=React.useState(()=>sessionStorage.getItem(draftKey)||'');
   const [actionMessage,setActionMessage]=React.useState(null);
   const threadRef=React.useRef(null);
   const holdTimer=React.useRef(null);
@@ -10,6 +11,10 @@ export default function Chat({person,messages,send,remove,sending,deleting,error
     if(threadRef.current)threadRef.current.scrollTop=threadRef.current.scrollHeight;
   },[messages.length]);
   React.useEffect(()=>()=>clearTimeout(holdTimer.current),[]);
+  React.useEffect(()=>{
+    if(text)sessionStorage.setItem(draftKey,text);
+    else sessionStorage.removeItem(draftKey);
+  },[draftKey,text]);
 
   const submit=async event=>{
     event.preventDefault();
