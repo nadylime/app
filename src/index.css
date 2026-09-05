@@ -268,3 +268,9 @@ body,button,select,input,textarea{font-family:var(--font-interface)}
 .plan-editor textarea{min-height:145px}
 .plan-editor label small{color:#717a73;font-size:10px}
 .plan-editor .btn{justify-self:stretch;border-radius:12px;font-size:13px}
+
+/* Offline availability */
+.offline-banner{position:sticky;top:77px;z-index:9;display:flex;align-items:center;justify-content:center;gap:7px;background:#fff4d9;border-bottom:1px solid #ead7a2;color:#675221;padding:7px 14px;font-size:11px}
+.offline-banner b{font-weight:800}
+.offline-banner span{font-weight:600}
+@media(max-width:430px){.offline-banner{top:69px}}
