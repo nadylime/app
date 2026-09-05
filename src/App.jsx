@@ -30,6 +30,7 @@ function SparkleIcon(){return <svg viewBox="0 0 24 24" fill="none" stroke="curre
 
 export default function App(){
   const [tab,setTab]=React.useState('home');
+  const [online,setOnline]=React.useState(()=>navigator.onLine);
   const [person,setPerson]=React.useState(()=>{
     const saved=localStorage.getItem('trip-person')||'';
     return PEOPLE.includes(saved)?saved:'';
@@ -44,6 +45,14 @@ export default function App(){
   },[person]);
 
   React.useEffect(()=>{
+    const connected=()=>setOnline(true);
+    const disconnected=()=>setOnline(false);
+    window.addEventListener('online',connected);
+    window.addEventListener('offline',disconnected);
+    return()=>{window.removeEventListener('online',connected);window.removeEventListener('offline',disconnected)};
+  },[]);
+
+  React.useEffect(()=>{
     window.scrollTo({top:0,left:0,behavior:'auto'});
   },[tab]);
 
@@ -51,11 +60,16 @@ export default function App(){
     let stopped=false;
     const checkForUpdate=async()=>{
       try{
+        const registration=await navigator.serviceWorker?.getRegistration();
+        await registration?.update();
         const response=await fetch(`/version.json?t=${Date.now()}`,{cache:'no-store'});
         const latest=(await response.json()).version;
         if(stopped||!latest||latest===__APP_VERSION__)return;
         const url=new URL(window.location.href);
         if(url.searchParams.get('app-version')===latest)return;
+        if(window.__APP_RELOADING__)return;
+        window.__APP_RELOADING__=true;
+        registration?.waiting?.postMessage({type:'SKIP_WAITING'});
         url.searchParams.set('app-version',latest);
         window.location.replace(url.toString());
       }catch{
@@ -95,6 +109,7 @@ export default function App(){
         {PEOPLE.map(name=><option key={name} value={name}>{name}{REMOTE_PARTICIPANTS.includes(name)?' · remote':''}</option>)}
       </select>
     </header>
+    {!online&&<div className="offline-banner" role="status"><b>Offline</b><span>Saved trip details are still available.</span></div>}
 
     {tab==='home'&&<Home go={setTab} ranked={ranked} score={score} openIdea={setSelected} openDay={openDay}/>} 
     {tripError&&<div className="shared-data-error" role="status">{tripError}</div>}
